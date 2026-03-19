@@ -15,6 +15,12 @@ public class Team {
         this.players = new ArrayList<Player>();
         this.coachRelationship = 50;
     }
-
+    public String getName() {
+        return name;
+    }
+    @Override
+    public String toString() {
+        return name;
+    }
 
 }
