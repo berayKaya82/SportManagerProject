@@ -1,4 +1,6 @@
 package football;
 
-public class FootballMatchFlow {
+import sport.MatchFlow;
+
+public class FootballMatchFlow  implements MatchFlow {
 }

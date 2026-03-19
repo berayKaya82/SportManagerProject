@@ -1,4 +1,6 @@
 package football;
 
-public class FootballRosterRule {
+import sport.RosterRule;
+
+public class FootballRosterRule implements RosterRule {
 }

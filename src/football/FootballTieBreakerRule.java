@@ -1,4 +1,6 @@
 package football;
 
-public class FootballTieBreakerRule {
+import sport.TieBreakerRule;
+
+public class FootballTieBreakerRule implements TieBreakerRule {
 }

@@ -1,4 +1,6 @@
 package football;
 
-public class FootballMatchSimulator {
+import sport.MatchSimulator;
+
+public class FootballMatchSimulator  implements MatchSimulator {
 }
