@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import sport.ITactic;
 
 public class Team {
+    private String id;
     private String name;
     private List<Player> startingPlayers;
     private List<Player> substitutes;
@@ -14,11 +15,16 @@ public class Team {
     private ITactic tactic;
     private double coachRelationship;
 
-    public Team(String name) {
+    public Team(String id,String name) {
+        this.id = id;
         this.name = name;
         this.startingPlayers = new ArrayList<>();
         this.substitutes = new ArrayList<>();
         this.coachRelationship = 50;
+    }
+
+    public String getId() {
+        return id;
     }
     public String getName() {
         return name;
