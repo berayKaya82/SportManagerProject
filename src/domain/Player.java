@@ -1,5 +1,14 @@
 package domain;
 
+import java.util.Objects;
+/**
+ * Represents a player in the sports manager game.
+ *
+ * <p>Each player has physical attributes (energy, condition, injury risk)
+ * that change over time through training and matches.
+ * Sport-specific attributes such as position and skill ratings
+ * are expected to be handled by sport-specific extensions.</p>
+ */
 public class Player {
     private int id;
     private String name;
@@ -47,5 +56,17 @@ public class Player {
     @Override
     public String toString() {
         return name + " (ID:" + id + ", " + gender + ", Age:" + age + ")";
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Player)) return false;
+        Player p = (Player) o;
+        return id == p.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
