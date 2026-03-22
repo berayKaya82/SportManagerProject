@@ -20,6 +20,18 @@ public class Player {
     private InjuryStatus injuryStatus;
 
     public Player(int id,String name,int age,Gender gender) {
+        if (id < 0)
+            throw new IllegalArgumentException("ID cannot be less than zero!");
+
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("Name cannot be null or empty");
+
+        if (age <= 0)
+            throw new IllegalArgumentException("Age must be positive");
+
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+
         this.id = id;
         this.name = name;
         this.age = age;
@@ -30,6 +42,11 @@ public class Player {
         injuryStatus = InjuryStatus.HEALTHY;
     }
     public int getId(){return id;}
+    public void setId(int id) {
+        if (id <= 0)
+            throw new IllegalArgumentException("ID must be positive");
+        this.id = id;
+    }
     public String getName(){return name;}
     public void setName(String name){this.name = name;}
     public int getAge(){return age;}

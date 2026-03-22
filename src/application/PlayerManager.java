@@ -19,6 +19,7 @@ public class PlayerManager {
     //The key represents the player ID, and the value is the Player object.
     private final Map<Integer, Player> playerMap;
 
+    private int nextId = 1;
 
     //Constructor initializes the internal player storage.
     public PlayerManager() {
@@ -34,9 +35,7 @@ public class PlayerManager {
     public void addPlayer(Player player) {
         validatePlayer(player);
 
-        if (playerMap.containsKey(player.getId())) {
-            throw new IllegalStateException("Player already exists! ID: " + player.getId());
-        }
+        player.setId(nextId++);
 
         playerMap.put(player.getId(), player);
     }
@@ -55,6 +54,37 @@ public class PlayerManager {
             addPlayer(p);
         }
     }
+
+    /**
+     * Generates a player using PlayerGenerator and adds it to the system.
+     * This method connects PlayerGenerator and PlayerManager.
+     */
+    public Player generateAndAddPlayer(PlayerGenerator generator) {
+        if (generator == null) {
+            throw new IllegalArgumentException("Generator cannot be null");
+        }
+
+        Player player = generator.generatePlayer();
+        addPlayer(player);
+        return player;
+    }
+
+    /**
+     * Generates multiple players using PlayerGenerator and adds them to the system.
+     */
+    public List<Player> generateAndAddPlayers(PlayerGenerator generator, int count) {
+        if (generator == null) {
+            throw new IllegalArgumentException("Generator cannot be null");
+        }
+
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be positive");
+        }
+
+        List<Player> players = generator.generatePlayers(count);
+        addPlayers(players);
+        return players;
+    }
     /**
      Retrieves a player by their unique ID.
      @param id the ID of the player
@@ -69,6 +99,15 @@ public class PlayerManager {
         }
 
         return player;
+    }
+
+    /**
+     * Checks whether a player exists in the system.
+     * @param id player ID
+     * @return true if player exists, false otherwise
+     */
+    public boolean exists(int id) {
+        return playerMap.containsKey(id);
     }
 
     /**
