@@ -20,7 +20,7 @@ import java.util.Map;
  Teams are stored using a unique teamId as the key.
  */
 public class TeamManager {
-    private final Map<String, Team> teams = new HashMap<>();
+    private final Map<Integer, Team> teams = new HashMap<>();
     private final PlayerManager playerManager;
     public TeamManager(PlayerManager playerManager) {
         if(playerManager == null) {
@@ -29,9 +29,9 @@ public class TeamManager {
         this.playerManager = playerManager;
     }
 
-    private void validateId(String teamId, String fieldName) {
-        if(teamId == null || teamId.trim().isEmpty()){
-            throw new IllegalArgumentException( fieldName + " cannot be null or empty");
+    private void validateId(int id, String fieldName) {
+        if (id <= 0) {
+            throw new IllegalArgumentException(fieldName + " must be positive");
         }
     }
 
@@ -41,7 +41,7 @@ public class TeamManager {
      @param name name of the team
      @throws IllegalArgumentException if inputs are invalid or team already exists
      */
-    public void createTeam(String teamId, String name){
+    public void createTeam(int teamId, String name){
         validateId(teamId, "Team ID");
         if(name == null || name.trim().isEmpty()){
             throw new IllegalArgumentException("Name cannot be null or empty");
@@ -60,7 +60,7 @@ public class TeamManager {
      @return Team object
      @throws IllegalArgumentException if team does not exist
      */
-    public Team getTeam(String teamId){
+    public Team getTeam(int teamId){
         validateId(teamId, "Team ID");
 
         if(!teams.containsKey(teamId)){
@@ -75,31 +75,20 @@ public class TeamManager {
      @return list of all teams
      */
     public List<Team> getAllTeams(){
-        List<Team> teamList = new ArrayList<>();
-        for (Team t : teams.values()) {
-            teamList.add(t);
-        }
-        return teamList;
+        return new ArrayList<>(teams.values());
     }
 
     /**
      * Adds a player to a team as a starting player.
      @param teamId ID of the team
      @param playerId ID of the player
-     @throws IllegalStateException if player already exists in the team
      */
-    public void addPlayerToTeam(String teamId, String playerId) {
+    public void addPlayerToTeam(int teamId, int playerId) {
         validateId(teamId, "Team ID");
         validateId(playerId, "Player ID");
 
         Team team = getTeam(teamId);
         Player player = playerManager.getPlayerById(playerId);
-
-        if (team.getStartingPlayers().contains(player) ||
-                team.getSubstitutes().contains(player)) {
-
-            throw new IllegalStateException("Player is already in the team");
-        }
 
         team.addStartingPlayer(player);
     }
@@ -110,7 +99,7 @@ public class TeamManager {
      @param playerId ID of the player
      @throws IllegalStateException if player is not in the team
      */
-    public void removePlayerFromTeam(String teamId, String playerId) {
+    public void removePlayerFromTeam(int teamId, int playerId) {
         validateId(teamId, "Team ID");
         validateId(playerId, "Player ID");
 
@@ -135,7 +124,7 @@ public class TeamManager {
      @param teamId ID of the team
      @throws IllegalStateException if team does not exist
      */
-    public void removeTeam(String teamId) {
+    public void removeTeam(int teamId) {
         validateId(teamId, "Team ID");
 
         if (!teams.containsKey(teamId)) {
@@ -152,12 +141,12 @@ public class TeamManager {
      @param playerId player ID
      @throws IllegalStateException if player is not in source team or already in target team
      */
-    public void transferPlayer(String fromTeamId, String toTeamId, String playerId) {
+    public void transferPlayer(int fromTeamId, int toTeamId, int playerId) {
         validateId(fromTeamId, "From Team ID");
         validateId(toTeamId, "To Team ID");
         validateId(playerId, "Player ID");
 
-        if (fromTeamId.equals(toTeamId)) {
+        if (fromTeamId == toTeamId) {
             throw new IllegalArgumentException("Cannot transfer within the same team");
         }
 
@@ -190,6 +179,6 @@ public class TeamManager {
 
     /*public void setTactic(String teamId, Tactic tactic){}
      * I'll write about it later according to the design changes;
-     * I left it in the comments so I don't forget.
+     * I left it in the comments, so I don't forget.
      * */
 }
