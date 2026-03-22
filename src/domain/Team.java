@@ -16,7 +16,7 @@ import sport.ITactic;
  * all mutations through the team's own methods.</p>
  */
 public class Team {
-    private String id;
+    private int id;
     private String name;
     private List<Player> startingPlayers;
     private List<Player> substitutes;
@@ -29,7 +29,7 @@ public class Team {
      */
     private double coachRelationship;
 
-    public Team(String id,String name) {
+    public Team(int id,String name) {
         this.id = id;
         this.name = name;
         this.startingPlayers = new ArrayList<>();
@@ -37,7 +37,7 @@ public class Team {
         this.coachRelationship = 50;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
     public String getName() {
