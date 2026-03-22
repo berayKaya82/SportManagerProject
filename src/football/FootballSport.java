@@ -13,10 +13,10 @@ public class FootballSport implements ISport {
     public FootballSport() {
         this.sportName = "Football";
         this.matchFlow = new FootballMatchFlow();
-        this.matchSimulator = new FootballMatchSimulator();
         this.rosterRule = new FootballRosterRule();
         this.scoringRule = new FootballScoringRule();
         this.tieBreakerRule = new FootballTieBreakerRule();
+        this.matchSimulator = new FootballMatchSimulator(matchFlow,rosterRule,scoringRule,tieBreakerRule);
     }
 
     @Override
