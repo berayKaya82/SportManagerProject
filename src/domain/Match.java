@@ -13,6 +13,11 @@ public class Match {
     public MatchResult getResult() { return result; }
     public MatchStatus getStatus() { return status; }
 
+    public MatchResult setResult() {
+        return result;
+    }
+
+
     public Match(Team homeTeam, Team awayTeam) {
         if (homeTeam == null || awayTeam == null) {
             throw new IllegalArgumentException("Teams cannot be null");
