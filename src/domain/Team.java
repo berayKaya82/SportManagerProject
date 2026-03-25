@@ -72,5 +72,32 @@ public class Team {
     public String toString() {
         return name;
     }
+    public String getRosterStatus() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== ").append(name).append(" - Player Status ===\n");
+        sb.append(String.format("%-20s %-8s %-10s %-12s %-10s%n",
+                "Name", "Energy", "Condition", "InjuryRisk", "Status"));
+        sb.append("-".repeat(62)).append("\n");
 
+        for (Player p : startingPlayers) {
+            sb.append(formatPlayerRow(p));
+        }
+        if (!substitutes.isEmpty()) {
+            sb.append("-- Substitutes --\n");
+            for (Player p : substitutes) {
+                sb.append(formatPlayerRow(p));
+            }
+        }
+        return sb.toString();
+    }
+
+    private String formatPlayerRow(Player p) {
+        return String.format("%-20s %-8d %-10d %-12d %-10s%n",
+                p.getName(),
+                p.getEnergy(),
+                p.getCondition(),
+                p.getInjuryRisk(),
+                p.getInjuryStatus()
+        );
+    }
 }
