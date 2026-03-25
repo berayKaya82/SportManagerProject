@@ -24,7 +24,8 @@ public class Match {
         if (homeTeam.equals(awayTeam)) {
             throw new IllegalArgumentException("A team cannot play against itself");
         }
-        this.homeTeam = homeTeam;
+
+        this.homeTeam=homeTeam;
         this.awayTeam = awayTeam;
         this.setResult(null);
         this.status = MatchStatus.SCHEDULED;
