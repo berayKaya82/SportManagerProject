@@ -13,10 +13,9 @@ public class Match {
     public MatchResult getResult() { return result; }
     public MatchStatus getStatus() { return status; }
 
-    public MatchResult setResult() {
-        return result;
+    public void setResult(MatchResult result) {
+        this.result = result;
     }
-
 
     public Match(Team homeTeam, Team awayTeam) {
         if (homeTeam == null || awayTeam == null) {
@@ -25,9 +24,9 @@ public class Match {
         if (homeTeam.equals(awayTeam)) {
             throw new IllegalArgumentException("A team cannot play against itself");
         }
-
+        this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
-        this.result = null;
+        this.setResult(null);
         this.status = MatchStatus.SCHEDULED;
     }
 
@@ -46,7 +45,7 @@ public class Match {
         if (result == null) {
             throw new IllegalArgumentException("Result cannot be null");
         }
-        this.result = result;
+        this.setResult(result);
         this.status = MatchStatus.FINISHED;
     }
 
@@ -93,6 +92,4 @@ public class Match {
     public int hashCode() {
         return Objects.hash(homeTeam, awayTeam);
     }
-
-
 }
