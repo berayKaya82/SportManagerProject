@@ -42,12 +42,15 @@ public class PlayerGenerator {
      @param count Number of players to generate
      @return List of randomly generated players
      */
-    public List<Player> generatePlayers(int count) {
+    public List<Player> generatePlayersByGender(int count, Gender gender) {
+
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+
         List<Player> players = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            Player player = createSinglePlayer();
-            players.add(player);
+            players.add(generatePlayerByGender(gender));
         }
 
         return players;

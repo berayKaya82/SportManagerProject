@@ -1,5 +1,6 @@
 package application;
 
+import domain.Gender;
 import domain.Player;
 
 import java.util.*;
@@ -72,17 +73,21 @@ public class PlayerManager {
     /**
      * Generates multiple players using PlayerGenerator and adds them to the system.
      */
-    public List<Player> generateAndAddPlayers(PlayerGenerator generator, int count) {
-        if (generator == null) {
+    public List<Player> generateAndAddPlayers(PlayerGenerator generator, int count, Gender gender) {
+
+        if (generator == null)
             throw new IllegalArgumentException("Generator cannot be null");
-        }
 
-        if (count <= 0) {
+        if (count <= 0)
             throw new IllegalArgumentException("Count must be positive");
-        }
 
-        List<Player> players = generator.generatePlayers(count);
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+
+        List<Player> players = generator.generatePlayersByGender(count, gender);
+
         addPlayers(players);
+
         return players;
     }
     /**
