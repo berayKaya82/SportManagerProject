@@ -1,8 +1,9 @@
 package application;
 
+import domain.Gender;
 import domain.Player;
-//import domain.Tactic;
 import domain.Team;
+// import sport.ITactic; // Tactic feature is temporarily disabled
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,25 +11,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
- TeamManager is responsible for managing Team objects and their interactions
- with players in the system.
- Responsibilities:
- - Create and store teams
- - Retrieve teams
- - Manage players inside teams (add/remove/transfer)
- - Maintain consistency between PlayerManager and Team objects
- Teams are stored using a unique teamId as the key.
+ * TeamManager handles all operations related to Team entities.
+ *
+ * Responsibilities:
+ * - Creating and storing teams
+ * - Retrieving teams
+ * - Managing player-team relationships (add/remove/transfer)
+ * - Ensuring consistency between PlayerManager and Team
+ *
+ * Note:
+ * TeamManager does NOT generate players, it only manages existing ones.
  */
 public class TeamManager {
+
     private final Map<Integer, Team> teams = new HashMap<>();
     private final PlayerManager playerManager;
+
     public TeamManager(PlayerManager playerManager) {
-        if(playerManager == null) {
+        if (playerManager == null) {
             throw new IllegalArgumentException("PlayerManager cannot be null");
         }
         this.playerManager = playerManager;
     }
 
+    /**
+     * Validates that an ID is positive.
+     */
     private void validateId(int id, String fieldName) {
         if (id <= 0) {
             throw new IllegalArgumentException(fieldName + " must be positive");
@@ -36,34 +44,37 @@ public class TeamManager {
     }
 
     /**
-     Creates a new team and stores in the system
-     @param teamId unique identifier of the team
-     @param name name of the team
-     @throws IllegalArgumentException if inputs are invalid or team already exists
+     * Creates and registers a new team in the system.
+     *
+     * Rules:
+     * - teamId must be unique
+     * - name cannot be empty
+     * - gender must be defined
      */
-    public void createTeam(int teamId, String name){
+    public void createTeam(int teamId, String name, Gender gender) {
         validateId(teamId, "Team ID");
-        if(name == null || name.trim().isEmpty()){
+
+        if (name == null || name.trim().isEmpty())
             throw new IllegalArgumentException("Name cannot be null or empty");
-        }
 
-        if (teams.containsKey(teamId)) {
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+
+        if (teams.containsKey(teamId))
             throw new IllegalArgumentException("Team already exists");
-        }
 
-        teams.put(teamId, new Team(teamId, name));
+        teams.put(teamId, new Team(teamId, name, gender));
     }
 
     /**
-     Retrieves a team by its ID.
-     @param teamId the ID of the team
-     @return Team object
-     @throws IllegalArgumentException if team does not exist
+     * Retrieves a team by ID.
+     *
+     * Throws exception if team does not exist → fail-fast design
      */
-    public Team getTeam(int teamId){
+    public Team getTeam(int teamId) {
         validateId(teamId, "Team ID");
 
-        if(!teams.containsKey(teamId)){
+        if (!teams.containsKey(teamId)) {
             throw new IllegalArgumentException("Team does not exist");
         }
 
@@ -71,17 +82,17 @@ public class TeamManager {
     }
 
     /**
-     Returns all teams in the system.
-     @return list of all teams
+     * Returns all teams (defensive copy).
      */
-    public List<Team> getAllTeams(){
+    public List<Team> getAllTeams() {
         return new ArrayList<>(teams.values());
     }
 
     /**
-     * Adds a player to a team as a starting player.
-     @param teamId ID of the team
-     @param playerId ID of the player
+     * Adds a player to a team's starting lineup.
+     *
+     * Important rule:
+     * Player gender must match team gender.
      */
     public void addPlayerToTeam(int teamId, int playerId) {
         validateId(teamId, "Team ID");
@@ -90,14 +101,17 @@ public class TeamManager {
         Team team = getTeam(teamId);
         Player player = playerManager.getPlayerById(playerId);
 
+        if (player.getGender() != team.getGender()) {
+            throw new IllegalArgumentException("Player gender does not match team");
+        }
+
         team.addStartingPlayer(player);
     }
 
     /**
-     Removes a player from a team (from either starting or substitute list).
-     @param teamId ID of the team
-     @param playerId ID of the player
-     @throws IllegalStateException if player is not in the team
+     * Removes a player from the team (starting or substitute).
+     *
+     * Throws exception if player is not part of the team.
      */
     public void removePlayerFromTeam(int teamId, int playerId) {
         validateId(teamId, "Team ID");
@@ -120,9 +134,7 @@ public class TeamManager {
     }
 
     /**
-     Removes a team from the system
-     @param teamId ID of the team
-     @throws IllegalStateException if team does not exist
+     * Removes a team from the system.
      */
     public void removeTeam(int teamId) {
         validateId(teamId, "Team ID");
@@ -135,11 +147,16 @@ public class TeamManager {
     }
 
     /**
-     Transfers a player from one team to another
-     @param fromTeamId ID of the team
-     @param toTeamId target team ID
-     @param playerId player ID
-     @throws IllegalStateException if player is not in source team or already in target team
+     * Transfers a player between teams.
+     *
+     * Rules:
+     * - Cannot transfer within same team
+     * - Player must exist in source team
+     * - Player must NOT exist in target team
+     *
+     * Preserves role:
+     * starting → starting
+     * substitute → substitute
      */
     public void transferPlayer(int fromTeamId, int toTeamId, int playerId) {
         validateId(fromTeamId, "From Team ID");
@@ -177,8 +194,15 @@ public class TeamManager {
         }
     }
 
-    /*public void setTactic(String teamId, Tactic tactic){}
-     * I'll write about it later according to the design changes;
-     * I left it in the comments, so I don't forget.
-     * */
+    /*
+    public void setTactic(int teamId, ITactic tactic) {
+        validateId(teamId, "Team ID");
+
+        if (tactic == null)
+            throw new IllegalArgumentException("Tactic cannot be null");
+
+        Team team = getTeam(teamId);
+        team.setTactic(tactic);
+    }
+    */
 }

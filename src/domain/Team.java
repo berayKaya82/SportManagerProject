@@ -18,6 +18,7 @@ import sport.ITactic;
 public class Team {
     private int id;
     private String name;
+    private Gender gender;
     private List<Player> startingPlayers;
     private List<Player> substitutes;
     private Coach coach;
@@ -29,14 +30,27 @@ public class Team {
      */
     private double coachRelationship;
 
-    public Team(int id,String name) {
+    public Team(int id, String name, Gender gender) {
+        if (id <= 0)
+            throw new IllegalArgumentException("ID must be positive");
+
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("Name cannot be null or empty");
+
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+
         this.id = id;
         this.name = name;
+        this.gender = gender;
+
         this.startingPlayers = new ArrayList<>();
         this.substitutes = new ArrayList<>();
         this.coachRelationship = 50;
     }
-
+    public Gender getGender() {
+        return gender;
+    }
     public int getId() {
         return id;
     }
@@ -53,11 +67,21 @@ public class Team {
     public void setCoachRelationship(double coachRelationship) {this.coachRelationship = coachRelationship;}
 
     public void addStartingPlayer(Player player) {
-        if(player==null) throw new IllegalArgumentException("Player cannot be null");
+        if(player==null)
+            throw new IllegalArgumentException("Player cannot be null");
+
+        if (player.getGender() != this.gender)
+            throw new IllegalArgumentException("Player gender mismatch with team");
+
         startingPlayers.add(player);
     }
     public void addSubstitute(Player player) {
-        if(player==null) throw new IllegalArgumentException("Player cannot be null");
+        if(player==null)
+            throw new IllegalArgumentException("Player cannot be null");
+
+        if (player.getGender() != this.gender)
+            throw new IllegalArgumentException("Player gender mismatch with team");
+
         substitutes.add(player);
     }
     public void removeStartingPlayer(Player player) {

@@ -216,4 +216,109 @@ public class NamePool {
             """
                     .lines().toList();
 
+    public static final List<String> TEAM_NAMES =
+            """
+                    İstanbul Yıldızları
+                    Anadolu Kartalları
+                    Boğazın Yargıçları
+                    Karadeniz Fırtınası
+                    Mezopotamya Güneşi
+                    Başkent Gücü
+                    Ege Efeleri
+                    Toros Kaplanları
+                    Marmara Birlik
+                    Altın Ordu SK
+                    Körfez United
+                    Bozkır Ateşi
+                    Hisar Gençlik
+                    Çınarspor
+                    Kuzey Işıkları FK
+                    London Royals
+                    Manchester Ironclads
+                    Silver City United
+                    North Star FC
+                    Ocean Side Athletics
+                    Golden Gate Warriors
+                    Iron Valley Rovers
+                    Sky High City
+                    Emerald Coast FC
+                    Blackwood Rangers
+                    Stormy Peaks United
+                    Phoenix Rising
+                    Shadow River SC
+                    Liberty Lions
+                    Titan City FC
+                    Red Desert Wanderers
+                    Mystic Hollow FC
+                    Cyber City 2077
+                    Velocity United
+                    Noble Knights FC
+                    Olympique de Lumière
+                    Paris Étoile
+                    Lion de Lyon
+                    AS Marseille Bleu
+                    Bordeaux Vignes
+                    Renaissance de Lille
+                    Côte d'Azur United
+                    Sporting Club du Nord
+                    FC Versailles Blanc
+                    Les Dragons de Nice
+                    Éclair de Nantes
+                    Saint-Germain Pirates
+                    AS Montagne
+                    Victoire de Toulouse
+                    Union de Strasbourg
+                    Real Madrid Azul
+                    Valencia Naranjas
+                    Atlético Sol
+                    Deportivo de la Luna
+                    Sevilla Guerreros
+                    Barcelona Blaugrana
+                    Inter Milan Rosso
+                    Juventus de Turín
+                    AC Roma Gladiators
+                    Napoli Azzurri
+                    Fiorentina Viola
+                    Lazio Aquile
+                    Palermo Aquila d'Oro
+                    San Sebastian United
+                    Bilbao Leones
+                    Berlin Mauer FC
+                    München Giganten
+                    Dortmund Bienen
+                    Hamburg Hafen SC
+                    Wolfsburg Jäger
+                    Frankfurt Adler
+                    Leipzig Bullen
+                    Stockholm Vikings
+                    Copenhagen Wolves
+                    Oslo Fjords FC
+                    Helsinki Blizzard
+                    Reykjavik Icebergs
+                    Amsterdam Tulips
+                    Rotterdam Port FC
+                    Brussels Red Devils
+                    Tokyo Samurai FC
+                    Rio Samba United
+                    Cairo Pharaohs
+                    Seoul Dragons
+                    Sydney Sharks
+                    Cape Town Diamonds
+                    Casablanca Lions
+                    Mumbai Tigers
+                    Toronto Raptors SC
+                    Mexico City Aztecs
+                    Aurora Borealis FC
+                    Zenith Zenith
+                    Nebula Wanderers
+                    Gravity Zero FC
+                    Midnight Sun SC
+                    Volcano Peak United
+                    Desert Mirage FC
+                    Neon Night Raiders
+                    Alpha Centauri FC
+                    Omega Force United        
+                    """
+                    .lines().toList();
+
 }
