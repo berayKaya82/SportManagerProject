@@ -9,7 +9,7 @@ import sport.ITactic;
  * Represents a sports team in the game.
  *
  * <p>A team consists of a starting lineup and a substitute bench,
- * managed by a coach and playing according to a sport-specific tactic.
+ * managed by a coach and playing according to a main.java.sport-specific tactic.
  * The relationship between the team and its coach influences training outcomes.</p>
  *
  * <p>Player lists are exposed as unmodifiable views to enforce
