@@ -1,6 +1,5 @@
 package sport;
 import domain.Match;
-import domain.MatchResult;
 import domain.StandingEntry;
 
 import java.util.List;

@@ -11,7 +11,7 @@ import java.util.*;
  TeamGenerator is responsible for creating fully initialized AI teams.
  Responsibilities:
  - Generate unique team names
- - Create players based on sport rules
+ - Create players based on main.java.sport rules
  - Ensure gender consistency
  - Assign coach and initial team attributes
  Note:
@@ -43,13 +43,13 @@ public class TeamGenerator {
      Creates a fully initialized AI team.
      Flow:
      1. Generate unique team name
-     2. Create players according to sport roster rules
+     2. Create players according to main.java.sport roster rules
      3. Assign players to team
      4. Assign coach
      5. Initialize team chemistry
      @param id      unique team id
      @param gender  team gender
-     @param sport   sport rules provider
+     @param sport   main.java.sport rules provider
      @return fully constructed Team
      */
     public Team createRandomTeam(int id, Gender gender, ISport sport) {
@@ -67,11 +67,11 @@ public class TeamGenerator {
         String name = getUniqueTeamName();
         Team team = new Team(id, name, gender);
 
-        //Generate players based on sport rules
+        //Generate players based on main.java.sport rules
         int startingCount = sport.getRosterRule().getStartingPlayerCount();
 
         if (startingCount <= 0)
-            throw new IllegalStateException("Invalid roster size from sport");
+            throw new IllegalStateException("Invalid roster size from main.java.sport");
 
         List<Player> starters =
                 playerGenerator.generatePlayersByGender(startingCount, gender);
@@ -87,7 +87,7 @@ public class TeamGenerator {
         //Assign coach
         team.setCoach(generateCoach());
 
-        // team.setTactic(generateDefaultTactic(sport));
+        // team.setTactic(generateDefaultTactic(main.java.sport));
 
         //Initialize team chemistry
         team.setCoachRelationship(randomBetween(45, 85));
@@ -141,8 +141,8 @@ public class TeamGenerator {
     }
 
     /*
-    private ITactic generateDefaultTactic(ISport sport) {
-        return sport.createDefaultTactic();
+    private ITactic generateDefaultTactic(ISport main.java.sport) {
+        return main.java.sport.createDefaultTactic();
     }
     */
 

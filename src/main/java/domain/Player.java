@@ -7,7 +7,7 @@ import java.util.Objects;
  * <p>Each player has physical attributes (energy, condition, injury risk)
  * that change over time through training and matches.
  * Sport-specific attributes such as position and skill ratings
- * are expected to be handled by sport-specific extensions.</p>
+ * are expected to be handled by main.java.sport-specific extensions.</p>
  */
 public class Player {
     private int id;

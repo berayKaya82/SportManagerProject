@@ -12,5 +12,9 @@ public class FootballRosterRule implements RosterRule {
         if(team.getTactic() == null)return false;
         return true;
     }
+    @Override
+    public int getStartingPlayerCount() {
+        return 11;
+    }
 
 }
