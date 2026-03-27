@@ -5,7 +5,8 @@ import domain.StandingEntry;
 import sport.TieBreakerRule;
 import java.util.List;
 
-public class FootballTieBreakerRule implements TieBreakerRule {
+
+public class  FootballTieBreakerRule implements TieBreakerRule {
     @Override
     public int compare(StandingEntry first, StandingEntry second , List<Match>playedMatches){
         if(first == null || second == null){

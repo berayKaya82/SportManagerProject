@@ -1,4 +1,7 @@
 package application;
+import domain.*;
+import football.FootballSport;
+
 
 public class Main {
     public static void main(String[] args) {
