@@ -4,7 +4,7 @@ import sport.ITactic;
 import domain.PlayStyle;
 
 public class FootballTactic implements ITactic {
-  private PlayStyle playStyle;
+  private  final PlayStyle playStyle;
 
   public FootballTactic(PlayStyle playStyle){
       if(playStyle == null){
@@ -12,6 +12,7 @@ public class FootballTactic implements ITactic {
       }
       this.playStyle=playStyle;
   }
+
 @Override
     public PlayStyle getPlayStyle(){
       return playStyle;

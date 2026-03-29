@@ -1,5 +1,6 @@
 package football;
 
+import domain.Player;
 import sport.RosterRule;
 import domain.Team;
 
@@ -10,6 +11,10 @@ public class FootballRosterRule implements RosterRule {
         if(team.getStartingPlayers().size() != 11)return false;
         if(team.getCoach() == null)return false;
         if(team.getTactic() == null)return false;
+
+        for(Player player : team.getStartingPlayers()){//player can be null we should check that
+            if(player == null)return false;
+        }
         return true;
     }
     @Override
