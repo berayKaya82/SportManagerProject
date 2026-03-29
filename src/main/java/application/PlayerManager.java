@@ -6,95 +6,56 @@ import domain.Player;
 import java.util.*;
 
 /**
- The PlayerManager class is responsible for managing Player objects.
- It provides methods to add, retrieve, filter, and remove players.
- Internally, players are stored in a HashMap using their unique ID as the key.
+ * Manages Player objects.
+ * Handles creation, storage, retrieval, and removal of players.
  */
 public class PlayerManager {
-    // Threshold value to determine whether a player is considered "healthy"
-    // If a player's injury risk is below this value, they are considered healthy
+
+    // Injury risk limit to consider a player healthy
     private static final int HEALTHY_THRESHOLD = 25;
 
-
-    //Stores players indexed by their unique ID.
-    //The key represents the player ID, and the value is the Player object.
+    // Stores players by their unique ID
     private final Map<Integer, Player> playerMap;
 
+    // Auto-increment ID generator
     private int nextId = 1;
 
-    //Constructor initializes the internal player storage.
+    /**
+     * Initializes player storage.
+     */
     public PlayerManager() {
         this.playerMap = new HashMap<>();
     }
 
-    /**
-     Adds a single player to the system.
-     @param player the Player object to be added
-     @throws IllegalArgumentException if the player is null
-     @throws IllegalStateException if a player with the same ID already exists
-     */
-    public void addPlayer(Player player) {
-        validatePlayer(player);
+    public Player createPlayer(String name, int age, Gender gender,
+                               int energy, int condition, int injuryRisk) {
 
-        player.setId(nextId++);
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("Name cannot be null or empty");
 
-        playerMap.put(player.getId(), player);
-    }
-
-    /**
-     Adds multiple players to the system.
-     @param players list of Player objects
-     @throws IllegalArgumentException if the list is null
-     */
-    public void addPlayers(List<Player> players) {
-        if (players == null) {
-            throw new IllegalArgumentException("Player list cannot be null");
-        }
-
-        for (Player p : players) {
-            addPlayer(p);
-        }
-    }
-
-    /**
-     * Generates a player using PlayerGenerator and adds it to the system.
-     * This method connects PlayerGenerator and PlayerManager.
-     */
-    public Player generateAndAddPlayer(PlayerGenerator generator) {
-        if (generator == null) {
-            throw new IllegalArgumentException("Generator cannot be null");
-        }
-
-        Player player = generator.generatePlayer();
-        addPlayer(player);
-        return player;
-    }
-
-    /**
-     * Generates multiple players using PlayerGenerator and adds them to the system.
-     */
-    public List<Player> generateAndAddPlayers(PlayerGenerator generator, int count, Gender gender) {
-
-        if (generator == null)
-            throw new IllegalArgumentException("Generator cannot be null");
-
-        if (count <= 0)
-            throw new IllegalArgumentException("Count must be positive");
+        if (age <= 0)
+            throw new IllegalArgumentException("Age must be positive");
 
         if (gender == null)
             throw new IllegalArgumentException("Gender cannot be null");
 
-        List<Player> players = generator.generatePlayersByGender(count, gender);
+        int id = nextId++;
 
-        addPlayers(players);
+        Player player = new Player(id, name, age, gender);
 
-        return players;
+        player.setEnergy(energy);
+        player.setCondition(condition);
+        player.setInjuryRisk(injuryRisk);
+
+        playerMap.put(id, player);
+
+        return player;
     }
     /**
-     Retrieves a player by their unique ID.
-     @param id the ID of the player
-     @return the Player object
-     @throws NoSuchElementException if no player is found with the given ID
+     * Returns player by ID.
+     * @param id player ID
+     * @return Player object
+     * @throws NoSuchElementException if player not found
      */
     public Player getPlayerById(int id) {
         Player player = playerMap.get(id);
@@ -107,26 +68,25 @@ public class PlayerManager {
     }
 
     /**
-     * Checks whether a player exists in the system.
+     * Checks if a player exists.
      * @param id player ID
-     * @return true if player exists, false otherwise
+     * @return true if exists, false otherwise
      */
     public boolean exists(int id) {
         return playerMap.containsKey(id);
     }
 
     /**
-     Returns a list of all players.
-     @return a new List containing all players
+     * Returns all players.
+     * @return list of players
      */
     public List<Player> getAllPlayers() {
         return new ArrayList<>(playerMap.values());
     }
 
     /**
-     Retrieves all players considered "healthy".
-     A player is healthy if their injury risk is below HEALTHY_THRESHOLD.
-     @return list of healthy players
+     * Returns players with low injury risk.
+     * @return list of healthy players
      */
     public List<Player> getHealthyPlayers() {
         List<Player> healthy = new ArrayList<>();
@@ -141,9 +101,9 @@ public class PlayerManager {
     }
 
     /**
-     Removes a player from the system by ID.
-     @param id the ID of the player to remove
-     @throws NoSuchElementException if the player does not exist
+     * Removes a player by ID.
+     * @param id player ID
+     * @throws NoSuchElementException if player does not exist
      */
     public void removePlayer(int id) {
         if (playerMap.remove(id) == null) {
@@ -152,21 +112,10 @@ public class PlayerManager {
     }
 
     /**
-     Returns the total number of players currently stored.
-     @return number of players
+     * Returns total player count.
+     * @return number of players
      */
     public int getPlayerCount() {
         return playerMap.size();
-    }
-
-    /**
-     Validates that the player object is not null.
-     @param player the Player object to validate
-     @throws IllegalArgumentException if player is null
-     */
-    private void validatePlayer(Player player) {
-        if (player == null) {
-            throw new IllegalArgumentException("Player cannot be null");
-        }
     }
 }

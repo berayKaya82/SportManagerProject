@@ -3,54 +3,39 @@ package application;
 import domain.*;
 // import football.FootballTactic; // Not used currently
 import sport.ISport;
+import sport.ITactic;
 // import sport.ITactic; // Tactic system temporarily disabled
 
 import java.util.*;
 
 /**
- TeamGenerator is responsible for creating fully initialized AI teams.
- Responsibilities:
- - Generate unique team names
- - Create players based on main.java.sport rules
- - Ensure gender consistency
- - Assign coach and initial team attributes
- Note:
- This class ONLY creates teams, it does not store them.
- Storage responsibility belongs to TeamManager.
+ * Responsible for generating fully initialized AI teams.
+ * Does NOT store teams, only creates them.
  */
 public class TeamGenerator {
 
     private final PlayerGenerator playerGenerator;
-    private final PlayerManager playerManager;
     private final Random random;
 
-    // Prevents duplicate team names in a single generation session
     private final Set<String> usedNames = new HashSet<>();
 
-    public TeamGenerator(PlayerGenerator playerGenerator,
-                         PlayerManager playerManager,
-                         Random random) {
-
-        if (playerGenerator == null || playerManager == null || random == null)
+    public TeamGenerator(PlayerGenerator playerGenerator, Random random) {
+        if (playerGenerator == null || random == null)
             throw new IllegalArgumentException("Dependencies cannot be null");
 
         this.playerGenerator = playerGenerator;
-        this.playerManager = playerManager;
         this.random = random;
     }
 
     /**
-     Creates a fully initialized AI team.
-     Flow:
-     1. Generate unique team name
-     2. Create players according to main.java.sport roster rules
-     3. Assign players to team
-     4. Assign coach
-     5. Initialize team chemistry
-     @param id      unique team id
-     @param gender  team gender
-     @param sport   main.java.sport rules provider
-     @return fully constructed Team
+     * Creates a fully initialized AI team.
+     * Includes name generation, player creation, coach assignment, and chemistry setup.
+     * @param id team ID
+     * @param gender team gender
+     * @param sport sport rules provider
+     * @return created Team
+     * @throws IllegalArgumentException if inputs are invalid
+     * @throws IllegalStateException if roster size is invalid
      */
     public Team createRandomTeam(int id, Gender gender, ISport sport) {
 
@@ -63,41 +48,38 @@ public class TeamGenerator {
         if (sport == null)
             throw new IllegalArgumentException("Sport cannot be null");
 
-        //Generate team name
+        // Generate team name
         String name = getUniqueTeamName();
         Team team = new Team(id, name, gender);
 
-        //Generate players based on main.java.sport rules
+        // Generate players based on sport rules
         int startingCount = sport.getRosterRule().getStartingPlayerCount();
 
         if (startingCount <= 0)
-            throw new IllegalStateException("Invalid roster size from main.java.sport");
+            throw new IllegalStateException("Invalid roster size from sport");
 
         List<Player> starters =
                 playerGenerator.generatePlayersByGender(startingCount, gender);
 
-        //Register players globally (single source of truth)
-        playerManager.addPlayers(starters);
-
-        //Assign players to team
+        // Assign players to team
         for (Player p : starters) {
             team.addStartingPlayer(p);
         }
-
-        //Assign coach
+        // Assign coach
         team.setCoach(generateCoach());
 
-        // team.setTactic(generateDefaultTactic(main.java.sport));
+        team.setTactic(generateDefaultTactic());
 
-        //Initialize team chemistry
+        // Initialize team chemistry
         team.setCoachRelationship(randomBetween(45, 85));
 
         return team;
     }
 
     /**
-     Generates a unique team name.
-     Falls back to random name if pool is exhausted.
+     * Generates a unique team name.
+     * Falls back to a random name if pool is exhausted.
+     * @return unique team name
      */
     private String getUniqueTeamName() {
 
@@ -116,15 +98,14 @@ public class TeamGenerator {
             }
         }
 
-        // fallback if all names are used
+        // Fallback if all names are used
         return "Team_" + random.nextInt(1000);
     }
 
     /**
-     Generates a randomized coach.
-     Logic:
-     - Most coaches are mid-level
-     - Few high-level coaches exist
+     * Generates a random coach.
+     * Most coaches are mid-level, few are high-level.
+     * @return Coach object
      */
     private Coach generateCoach() {
 
@@ -140,14 +121,25 @@ public class TeamGenerator {
         return new Coach(name, level, requiredSeason, reputation);
     }
 
-    /*
-    private ITactic generateDefaultTactic(ISport main.java.sport) {
-        return main.java.sport.createDefaultTactic();
+    private ITactic generateDefaultTactic() {
+
+        int r = random.nextInt(3);
+
+        switch (r) {
+            case 0:
+                return () -> PlayStyle.DEFENSIVE;
+            case 1:
+                return () -> PlayStyle.OFFENSIVE;
+            default:
+                return () -> PlayStyle.BALANCED;
+        }
     }
-    */
 
     /**
-     Utility method for generating a random integer in range [min, max]
+     * Generates a random number between min and max (inclusive).
+     * @param min minimum value
+     * @param max maximum value
+     * @return random number in range
      */
     private int randomBetween(int min, int max) {
         return random.nextInt((max - min) + 1) + min;

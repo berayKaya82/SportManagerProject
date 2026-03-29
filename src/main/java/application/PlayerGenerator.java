@@ -8,15 +8,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- PlayerGenerator is responsible for creating Player objects with randomized attributes.
- It uses predefined ranges for age, energy, condition, and injury risk.
- It supports:
- - Fully random player generation
- - Semi-random generation (custom name, gender, etc.)
- - Fully custom player creation
- NOTE:
- This class ONLY creates players.
- It does NOT store them. (PlayerManager handles storage)
+ * Responsible for creating Player objects with random or custom values.
+ * Does NOT store players, only creates them.
  */
 public class PlayerGenerator {
 
@@ -33,19 +26,27 @@ public class PlayerGenerator {
     private static final int MAX_INJURY = 30;
 
     private final Random random;
+    private final PlayerManager playerManager;
 
-    public PlayerGenerator(Random random) {
+    public PlayerGenerator(Random random, PlayerManager playerManager) {
+        if (random == null)
+            throw new IllegalArgumentException("Random cannot be null");
+        if (playerManager == null)
+            throw new IllegalArgumentException("PlayerManager cannot be null");
+
         this.random = random;
+        this.playerManager = playerManager;
     }
+
     /**
-     Generates a list of Player objects.
-     @param count Number of players to generate
-     @return List of randomly generated players
+     * Generates multiple players with the given gender.
      */
     public List<Player> generatePlayersByGender(int count, Gender gender) {
-
         if (gender == null)
             throw new IllegalArgumentException("Gender cannot be null");
+
+        if (count <= 0)
+            throw new IllegalArgumentException("Count must be positive");
 
         List<Player> players = new ArrayList<>();
 
@@ -57,81 +58,85 @@ public class PlayerGenerator {
     }
 
     /**
-     Creates a single Player object with randomized attributes.
-     @return A fully initialized Player instance
-     */
-    private Player createSinglePlayer() {
-        boolean isMale = random.nextBoolean();
-        Gender gender = isMale ? Gender.MALE : Gender.FEMALE;
-        List<String> pool = isMale ? NamePool.MALE_NAMES : NamePool.FEMALE_NAMES;
-        String randomName = pool.get(random.nextInt(pool.size()));
-
-        int age = randomBetween(MIN_AGE, MAX_AGE);
-
-        Player newPlayer = new Player(0, randomName, age, gender);
-
-        newPlayer.setEnergy(randomBetween(MIN_ENERGY, MAX_ENERGY));
-        newPlayer.setCondition(randomBetween(MIN_CONDITION, MAX_CONDITION));
-        newPlayer.setInjuryRisk(randomBetween(MIN_INJURY, MAX_INJURY));
-
-        return newPlayer;
-    }
-
-    /**
-     Generates a completely random single player.
+     * Generates a fully random player.
      */
     public Player generatePlayer() {
-        return createSinglePlayer();
+        boolean isMale = random.nextBoolean();
+        Gender gender = isMale ? Gender.MALE : Gender.FEMALE;
+
+        return generatePlayerByGender(gender);
     }
 
     /**
-     Generates a player with given name, age, and gender,
-     while other attributes are randomized.
+     * Generates a player with given name, age, and gender.
+     * Other attributes are random.
      */
     public Player generatePlayerWithName(String name, int age, Gender gender) {
-        Player player = new Player(0, name, age, gender);
 
-        player.setEnergy(randomBetween(MIN_ENERGY, MAX_ENERGY));
-        player.setCondition(randomBetween(MIN_CONDITION, MAX_CONDITION));
-        player.setInjuryRisk(randomBetween(MIN_INJURY, MAX_INJURY));
+        validateBasicInputs(name, age, gender);
 
-        return player;
+        return playerManager.createPlayer(
+                name,
+                age,
+                gender,
+                randomBetween(MIN_ENERGY, MAX_ENERGY),
+                randomBetween(MIN_CONDITION, MAX_CONDITION),
+                randomBetween(MIN_INJURY, MAX_INJURY)
+        );
     }
 
     /**
-     Generates a random player based on a specified gender.
-     Name is selected from the corresponding name pool.
+     * Generates a random player for a specific gender.
+     * Name is selected from a predefined name pool.
      */
     public Player generatePlayerByGender(Gender gender) {
-        boolean isMale = gender == Gender.MALE;
-        List<String> pool = isMale ? NamePool.MALE_NAMES : NamePool.FEMALE_NAMES;
+
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+
+        List<String> pool =
+                gender == Gender.MALE ? NamePool.MALE_NAMES : NamePool.FEMALE_NAMES;
 
         String name = pool.get(random.nextInt(pool.size()));
         int age = randomBetween(MIN_AGE, MAX_AGE);
 
-        Player player = new Player(0, name, age, gender);
-
-        player.setEnergy(randomBetween(MIN_ENERGY, MAX_ENERGY));
-        player.setCondition(randomBetween(MIN_CONDITION, MAX_CONDITION));
-        player.setInjuryRisk(randomBetween(MIN_INJURY, MAX_INJURY));
-
-        return player;
+        return playerManager.createPlayer(
+                name,
+                age,
+                gender,
+                randomBetween(MIN_ENERGY, MAX_ENERGY),
+                randomBetween(MIN_CONDITION, MAX_CONDITION),
+                randomBetween(MIN_INJURY, MAX_INJURY)
+        );
     }
 
     /**
-     Generates a player with given name, age, and gender,
-     while other attributes are randomized.
+     * Creates a fully custom player with all values provided.
      */
     public Player createCustomPlayer(String name, int age, Gender gender,
                                      int energy, int condition, int injuryRisk) {
 
-        Player player = new Player(0, name, age, gender);
+        validateBasicInputs(name, age, gender);
 
-        player.setEnergy(energy);
-        player.setCondition(condition);
-        player.setInjuryRisk(injuryRisk);
+        return playerManager.createPlayer(
+                name,
+                age,
+                gender,
+                energy,
+                condition,
+                injuryRisk
+        );
+    }
 
-        return player;
+    private void validateBasicInputs(String name, int age, Gender gender) {
+        if (name == null || name.trim().isEmpty())
+            throw new IllegalArgumentException("Name cannot be null or empty");
+
+        if (age <= 0)
+            throw new IllegalArgumentException("Age must be positive");
+
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
     }
 
     private int randomBetween(int min, int max) {

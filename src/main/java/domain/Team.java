@@ -16,7 +16,7 @@ import sport.ITactic;
  * all mutations through the team's own methods.</p>
  */
 public class Team {
-    private int id;
+    private final int id;
     private String name;
     private Gender gender;
     private List<Player> startingPlayers;
@@ -64,7 +64,12 @@ public class Team {
     public ITactic getTactic() {return tactic;}
     public void setTactic(ITactic tactic) {this.tactic = tactic;}
     public double getCoachRelationship() {return coachRelationship;}
-    public void setCoachRelationship(double coachRelationship) {this.coachRelationship = coachRelationship;}
+    public void setCoachRelationship(double coachRelationship) {
+        if (coachRelationship < 0 || coachRelationship > 100)
+            throw new IllegalArgumentException("Coach relationship must be between 0 and 100");
+
+        this.coachRelationship = coachRelationship;
+    }
 
     public void addStartingPlayer(Player player) {
         if(player==null)
@@ -72,6 +77,9 @@ public class Team {
 
         if (player.getGender() != this.gender)
             throw new IllegalArgumentException("Player gender mismatch with team");
+
+        if (startingPlayers.contains(player) || substitutes.contains(player))
+            throw new IllegalStateException("Player already in team");
 
         startingPlayers.add(player);
     }
@@ -123,5 +131,17 @@ public class Team {
                 p.getInjuryRisk(),
                 p.getInjuryStatus()
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Team)) return false;
+        return id == ((Team) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
     }
 }

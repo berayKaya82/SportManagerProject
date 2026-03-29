@@ -6,16 +6,27 @@ import sport.ISport;
 import java.util.*;
 
 /**
- * LeagueManager:
- * Responsible for creating and managing leagues.
+ * Manages leagues.
+ * Handles creation and retrieval of leagues by gender and sport.
  */
 public class LeagueManager {
 
-    private final Map<Gender, League> leagues = new HashMap<>();
+    // Stores leagues by gender and sport name
+    private final Map<Gender, Map<String, League>> leagues = new HashMap<>();
+
     private final TeamGenerator teamGenerator;
 
+    // Auto-increment team ID
+    private int nextTeamId = 1;
+
+    // Total teams in a league
     private static final int TOTAL_TEAMS = 18;
 
+    /**
+     * Initializes LeagueManager with required dependencies.
+     * @param teamGenerator team generator instance
+     * @throws IllegalArgumentException if teamGenerator is null
+     */
     public LeagueManager(TeamGenerator teamGenerator) {
         if (teamGenerator == null)
             throw new IllegalArgumentException("TeamGenerator cannot be null");
@@ -23,72 +34,58 @@ public class LeagueManager {
         this.teamGenerator = teamGenerator;
     }
 
-    public League createLeague(Gender gender, Team userTeam, ISport sport) {
+    public League createLeagueWithUserTeam(String teamName, Gender gender, ISport sport) {
 
-        if (gender == null || userTeam == null || sport == null)
-            throw new IllegalArgumentException("Inputs cannot be null");
+        if (teamName == null || teamName.isBlank())
+            throw new IllegalArgumentException("Team name cannot be empty");
+        if (gender == null || sport == null)
+            throw new IllegalArgumentException("Gender and sport cannot be null");
 
-        if (!gender.equals(userTeam.getGender()))
-            throw new IllegalArgumentException("User team gender mismatch");
+        String sportKey = sport.getSportName();
+        if (leagues.containsKey(gender) && leagues.get(gender).containsKey(sportKey))
+            throw new IllegalStateException("League already exists for this gender and sport");
 
-        if (leagues.containsKey(gender))
-            throw new IllegalStateException("League already exists for gender: " + gender);
+        int userTeamId = nextTeamId++;
+        Team userTeam = new Team(userTeamId, teamName, gender);
 
         List<Team> teams = new ArrayList<>();
         teams.add(userTeam);
 
-        //Safe ID generation
-        int nextId = 1;
-
         for (int i = 0; i < TOTAL_TEAMS - 1; i++) {
-
-            while (containsId(teams, nextId)) {
-                nextId++;
-            }
-
-            Team aiTeam = teamGenerator.createRandomTeam(nextId, gender, sport);
+            Team aiTeam = teamGenerator.createRandomTeam(nextTeamId++, gender, sport);
             teams.add(aiTeam);
-            nextId++;
         }
 
-        //League name
-        String leagueName = sport.getClass().getSimpleName() + " League";
-
+        String leagueName = sport.getSportName() + " League";
         League league = new League(leagueName, gender, teams, sport);
 
-        leagues.put(gender, league);
+        leagues.computeIfAbsent(gender, g -> new HashMap<>())
+                .put(sportKey, league);
 
         return league;
     }
 
-    public League getLeague(Gender gender) {
-        League league = leagues.get(gender);
+    /**
+     * Returns the league for given gender and sport.
+     */
+    public League getLeague(Gender gender, ISport sport) {
+        Map<String, League> sportMap = leagues.get(gender);
+
+        if (sportMap == null)
+            throw new IllegalStateException("No leagues found for gender: " + gender);
+
+        League league = sportMap.get(sport.getSportName());
 
         if (league == null)
-            throw new IllegalStateException("League not found for gender: " + gender);
+            throw new IllegalStateException("League not found for given gender and sport");
 
         return league;
     }
 
-    public Fixture getFixture(Gender gender) {
-        return getLeague(gender).getFixture();
-    }
-    /*
-    public List<StandingEntry> getStandings(Gender gender) {
-        return getLeague(gender).getTable().getSortedStandings();
-    }
-
-    public void updateStandings(Gender gender, Match match) {
-
-        if (match == null)
-            throw new IllegalArgumentException("Match cannot be null");
-
-        League league = getLeague(gender);
-
-        league.getTable().recordMatch(match);
-    }
-    */
-    private boolean containsId(List<Team> teams, int id) {
-        return teams.stream().anyMatch(t -> t.getId() == id);
+    /**
+     * Returns fixture of a league.
+     */
+    public Fixture getFixture(Gender gender, ISport sport) {
+        return getLeague(gender, sport).getFixture();
     }
 }
