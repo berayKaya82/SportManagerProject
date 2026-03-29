@@ -12,6 +12,9 @@ public class  FootballTieBreakerRule implements TieBreakerRule {
         if(first == null || second == null){
             throw new IllegalArgumentException("first or second standing entry cannot be null !");
         }
+        if(playedMatches == null){
+            throw new IllegalArgumentException("played matches can not be null");
+        }
         if(first.getPoints() != second.getPoints()){
             return Integer.compare(second.getPoints(),first.getPoints() );//the team that has more point should be upper level
         }

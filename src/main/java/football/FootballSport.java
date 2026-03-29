@@ -2,21 +2,24 @@ package football;
 
 import sport.*;
 
+import java.util.Random;
+
 public class FootballSport implements ISport {
-    private String sportName;
-    private MatchFlow matchFlow;
-    private MatchSimulator matchSimulator;
-    private RosterRule rosterRule;
-    private ScoringRule scoringRule;
-    private TieBreakerRule tieBreakerRule;
+    private final String sportName;
+    private final MatchFlow matchFlow;
+    private final MatchSimulator matchSimulator;
+    private final RosterRule rosterRule;
+    private final FootballScoringRule scoringRule;
+    private final TieBreakerRule tieBreakerRule;
 
     public FootballSport() {
+        Random random =new Random();
         this.sportName = "Football";
         this.matchFlow = new FootballMatchFlow();
         this.rosterRule = new FootballRosterRule();
-        this.scoringRule = new FootballScoringRule();
+        this.scoringRule = new FootballScoringRule(random);
         this.tieBreakerRule = new FootballTieBreakerRule();
-        this.matchSimulator = new FootballMatchSimulator(matchFlow,rosterRule,scoringRule,tieBreakerRule);
+        this.matchSimulator = new FootballMatchSimulator(matchFlow,rosterRule, scoringRule,random);
     }
 
     @Override
