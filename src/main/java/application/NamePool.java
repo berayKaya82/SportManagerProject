@@ -109,10 +109,10 @@ public class NamePool {
             Antonio Ramos
             Rafael Guerrero
             """
-                    .lines().toList();
+                    .lines().filter(s -> !s.isBlank()).toList();
 
     public static final List<String> FEMALE_NAMES =
-            """  
+            """
             Ayşe Yılmaz
             Zeynep Demir
             Elif Kaya
@@ -214,10 +214,10 @@ public class NamePool {
             Marta Ramos
             Sara Guerrero
             """
-                    .lines().toList();
+                    .lines().filter(s -> !s.isBlank()).toList();
 
     public static final List<String> TEAM_NAMES =
-            """
+                    """
                     İstanbul Yıldızları
                     Anadolu Kartalları
                     Boğazın Yargıçları
@@ -319,6 +319,5 @@ public class NamePool {
                     Alpha Centauri FC
                     Omega Force United        
                     """
-                    .lines().toList();
-
+                    .lines().filter(s -> !s.isBlank()).toList();
 }

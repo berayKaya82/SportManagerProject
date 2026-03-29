@@ -10,7 +10,7 @@ import java.util.Objects;
  * are expected to be handled by main.java.sport-specific extensions.</p>
  */
 public class Player {
-    private int id;
+    private final int id;
     private String name;
     private int age;
     private Gender gender;
@@ -20,8 +20,8 @@ public class Player {
     private InjuryStatus injuryStatus;
 
     public Player(int id,String name,int age,Gender gender) {
-        if (id < 0)
-            throw new IllegalArgumentException("ID cannot be less than zero!");
+        if (id <= 0)
+            throw new IllegalArgumentException("ID must be greater than 0 !");
 
         if (name == null || name.trim().isEmpty())
             throw new IllegalArgumentException("Name cannot be null or empty");
@@ -42,11 +42,6 @@ public class Player {
         injuryStatus = InjuryStatus.HEALTHY;
     }
     public int getId(){return id;}
-    public void setId(int id) {
-        if (id <= 0)
-            throw new IllegalArgumentException("ID must be positive");
-        this.id = id;
-    }
     public String getName(){return name;}
     public void setName(String name){this.name = name;}
     public int getAge(){return age;}

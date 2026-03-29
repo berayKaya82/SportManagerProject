@@ -1,208 +1,123 @@
 package application;
 
-import domain.Gender;
+import domain.Coach;
 import domain.Player;
 import domain.Team;
-// import sport.ITactic; // Tactic feature is temporarily disabled
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import sport.ITactic;
 
 /**
- * TeamManager handles all operations related to Team entities.
- *
- * Responsibilities:
- * - Creating and storing teams
- * - Retrieving teams
- * - Managing player-team relationships (add/remove/transfer)
- * - Ensuring consistency between PlayerManager and Team
- *
- * Note:
- * TeamManager does NOT generate players, it only manages existing ones.
+ * TeamManager is responsible ONLY for managing the user's team.
+ * IMPORTANT DESIGN CHANGE:
+ * This class no longer manages multiple teams (no Map).
+ * It holds a single Team reference (managedTeam).
+ * This ensures that TeamManager and League use the SAME Team object.
+ * WHY?
+ * If TeamManager created its own Team or kept a Map,
+ * it would cause synchronization issues with League.
  */
 public class TeamManager {
 
-    private final Map<Integer, Team> teams = new HashMap<>();
+    // The single team managed by the user (shared reference with League)
+    private final Team managedTeam;
+
+    // Used to fetch players safely from the system
     private final PlayerManager playerManager;
 
-    public TeamManager(PlayerManager playerManager) {
-        if (playerManager == null) {
+    /**
+     * Constructor requires an existing Team.
+     * This Team should come from League (NOT created here).
+     */
+    public TeamManager(Team userTeam, PlayerManager playerManager) {
+
+        if (userTeam == null)
+            throw new IllegalArgumentException("Team cannot be null");
+
+        if (playerManager == null)
             throw new IllegalArgumentException("PlayerManager cannot be null");
-        }
+
+        // Store reference (NO COPY → same object as League)
+        this.managedTeam = userTeam;
         this.playerManager = playerManager;
     }
 
     /**
-     * Validates that an ID is positive.
+     * Returns the managed team.
      */
-    private void validateId(int id, String fieldName) {
-        if (id <= 0) {
-            throw new IllegalArgumentException(fieldName + " must be positive");
-        }
+    public Team getManagedTeam() {
+        return managedTeam;
     }
 
     /**
-     * Creates and registers a new team in the system.
-     *
-     * Rules:
-     * - teamId must be unique
-     * - name cannot be empty
-     * - gender must be defined
+     * Adds a player to the starting lineup.
+     * Player is retrieved from PlayerManager using ID.
      */
-    public void createTeam(int teamId, String name, Gender gender) {
-        validateId(teamId, "Team ID");
+    public void addPlayerToStarting(int playerId) {
 
-        if (name == null || name.trim().isEmpty())
-            throw new IllegalArgumentException("Name cannot be null or empty");
-
-        if (gender == null)
-            throw new IllegalArgumentException("Gender cannot be null");
-
-        if (teams.containsKey(teamId))
-            throw new IllegalArgumentException("Team already exists");
-
-        teams.put(teamId, new Team(teamId, name, gender));
-    }
-
-    /**
-     * Retrieves a team by ID.
-     *
-     * Throws exception if team does not exist → fail-fast design
-     */
-    public Team getTeam(int teamId) {
-        validateId(teamId, "Team ID");
-
-        if (!teams.containsKey(teamId)) {
-            throw new IllegalArgumentException("Team does not exist");
-        }
-
-        return teams.get(teamId);
-    }
-
-    /**
-     * Returns all teams (defensive copy).
-     */
-    public List<Team> getAllTeams() {
-        return new ArrayList<>(teams.values());
-    }
-
-    /**
-     * Adds a player to a team's starting lineup.
-     *
-     * Important rule:
-     * Player gender must match team gender.
-     */
-    public void addPlayerToTeam(int teamId, int playerId) {
-        validateId(teamId, "Team ID");
-        validateId(playerId, "Player ID");
-
-        Team team = getTeam(teamId);
+        // Get player from system (guaranteed valid & registered)
         Player player = playerManager.getPlayerById(playerId);
 
-        if (player.getGender() != team.getGender()) {
-            throw new IllegalArgumentException("Player gender does not match team");
-        }
-
-        team.addStartingPlayer(player);
+        // Delegate to Team
+        managedTeam.addStartingPlayer(player);
     }
 
     /**
-     * Removes a player from the team (starting or substitute).
-     *
-     * Throws exception if player is not part of the team.
+     * Removes a player from starting lineup.
      */
-    public void removePlayerFromTeam(int teamId, int playerId) {
-        validateId(teamId, "Team ID");
-        validateId(playerId, "Player ID");
-
-        Team team = getTeam(teamId);
-        Player player = playerManager.getPlayerById(playerId);
-
-        if (team.getStartingPlayers().contains(player)) {
-            team.removeStartingPlayer(player);
-            return;
-        }
-
-        if (team.getSubstitutes().contains(player)) {
-            team.removeSubstitute(player);
-            return;
-        }
-
-        throw new IllegalStateException("Player is not in the team");
-    }
-
-    /**
-     * Removes a team from the system.
-     */
-    public void removeTeam(int teamId) {
-        validateId(teamId, "Team ID");
-
-        if (!teams.containsKey(teamId)) {
-            throw new IllegalArgumentException("Team does not exist");
-        }
-
-        teams.remove(teamId);
-    }
-
-    /**
-     * Transfers a player between teams.
-     *
-     * Rules:
-     * - Cannot transfer within same team
-     * - Player must exist in source team
-     * - Player must NOT exist in target team
-     *
-     * Preserves role:
-     * starting → starting
-     * substitute → substitute
-     */
-    public void transferPlayer(int fromTeamId, int toTeamId, int playerId) {
-        validateId(fromTeamId, "From Team ID");
-        validateId(toTeamId, "To Team ID");
-        validateId(playerId, "Player ID");
-
-        if (fromTeamId == toTeamId) {
-            throw new IllegalArgumentException("Cannot transfer within the same team");
-        }
-
-        Team fromTeam = getTeam(fromTeamId);
-        Team toTeam = getTeam(toTeamId);
+    public void removePlayerFromStarting(int playerId) {
 
         Player player = playerManager.getPlayerById(playerId);
 
-        boolean isInStarting = fromTeam.getStartingPlayers().contains(player);
-        boolean isInSubstitute = fromTeam.getSubstitutes().contains(player);
-
-        if (!isInStarting && !isInSubstitute) {
-            throw new IllegalStateException("Player is not in the source team");
-        }
-
-        if (toTeam.getStartingPlayers().contains(player) ||
-                toTeam.getSubstitutes().contains(player)) {
-
-            throw new IllegalStateException("Player already exists in target team");
-        }
-
-        if (isInStarting) {
-            fromTeam.removeStartingPlayer(player);
-            toTeam.addStartingPlayer(player);
-        } else {
-            fromTeam.removeSubstitute(player);
-            toTeam.addSubstitute(player);
-        }
+        managedTeam.removeStartingPlayer(player);
     }
 
-    /*
-    public void setTactic(int teamId, ITactic tactic) {
-        validateId(teamId, "Team ID");
+    /**
+     * Adds a player to substitutes bench.
+     */
+    public void addPlayerToSubstitutes(int playerId) {
+
+        Player player = playerManager.getPlayerById(playerId);
+
+        managedTeam.addSubstitute(player);
+    }
+
+    /**
+     * Assigns a tactic to the team.
+     */
+    public void setTactic(ITactic tactic) {
 
         if (tactic == null)
             throw new IllegalArgumentException("Tactic cannot be null");
 
-        Team team = getTeam(teamId);
-        team.setTactic(tactic);
+        managedTeam.setTactic(tactic);
     }
-    */
+    public void transferPlayer(int playerId, Team fromTeam) {
+        Player player = playerManager.getPlayerById(playerId);
+
+        if (!fromTeam.getStartingPlayers().contains(player) &&
+                !fromTeam.getSubstitutes().contains(player))
+            throw new IllegalStateException("Player not in source team");
+
+        if (managedTeam.getStartingPlayers().contains(player) ||
+                managedTeam.getSubstitutes().contains(player))
+            throw new IllegalStateException("Player already in managed team");
+
+        if (fromTeam.getStartingPlayers().contains(player)) {
+            fromTeam.removeStartingPlayer(player);
+            managedTeam.addStartingPlayer(player);
+        } else {
+            fromTeam.removeSubstitute(player);
+            managedTeam.addSubstitute(player);
+        }
+    }
+
+    /**
+     * Assigns a coach to the team.
+     */
+    public void setCoach(Coach coach) {
+
+        if (coach == null)
+            throw new IllegalArgumentException("Coach cannot be null");
+
+        managedTeam.setCoach(coach);
+    }
 }
