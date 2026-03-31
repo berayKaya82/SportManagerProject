@@ -84,11 +84,14 @@ public class Team {
         startingPlayers.add(player);
     }
     public void addSubstitute(Player player) {
-        if(player==null)
+        if (player == null)
             throw new IllegalArgumentException("Player cannot be null");
 
         if (player.getGender() != this.gender)
             throw new IllegalArgumentException("Player gender mismatch with team");
+
+        if (startingPlayers.contains(player) || substitutes.contains(player))
+            throw new IllegalStateException("Player already in team");  // ← bunu ekle
 
         substitutes.add(player);
     }
