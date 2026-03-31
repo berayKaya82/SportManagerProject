@@ -76,7 +76,6 @@ public class League {
             if (!current.hasMatch(match))
                 throw new IllegalArgumentException(
                         "Match does not belong to current week");
-            match.finishMatch(result);
             leagueTable.recordMatch(match);
         }
     }

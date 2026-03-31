@@ -28,7 +28,6 @@ public class FootballMatchSimulator  implements MatchSimulator {
         validateMatch(match);
         validateRosters(match);
 
-        match.startMatch();
         return scoringRule.generateHalfResult(match);
     }
     public MatchResult playSecondHalf(Match match,MatchResult firstHalfResult){
