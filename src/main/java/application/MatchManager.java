@@ -65,23 +65,32 @@ public class MatchManager {
         return week.getMatches().stream().filter(m -> m.involvedTeam(userTeam)).findFirst();
     }
     // -------------------------------------------------------------------------
-    // User Match — Two Halves
+    // User Match — Period-based
     // -------------------------------------------------------------------------
-    public MatchResult playUserFirstHalf(Match match) {
+
+    /**
+     * Plays a single period of the user's match.
+     * Between periods the caller can change tactics or substitute players.
+     *
+     * @param match         the user's match (must be IN_PROGRESS)
+     * @param periodNumber  which period to play (1-based)
+     * @param currentResult cumulative result from previous periods, null for first
+     * @return cumulative result including this period
+     */
+    public MatchResult playUserPeriod(Match match, int periodNumber, MatchResult currentResult) {
         if (match == null)
             throw new IllegalArgumentException("Match cannot be null");
         if (match.getStatus() != MatchStatus.IN_PROGRESS)
-            throw new IllegalStateException("Match must be 'IN PROGRESS' to start first half");
-        return matchSimulator.playFirstHalf(match);
+            throw new IllegalStateException("Match must be IN_PROGRESS to play a period");
+        if (periodNumber < 1 || periodNumber > matchSimulator.getNumberOfPeriods())
+            throw new IllegalArgumentException("Invalid period number: " + periodNumber);
+
+        return matchSimulator.playPeriod(match, periodNumber, currentResult);
     }
-    public MatchResult playUserSecondHalf(Match match, MatchResult firstHalfResult) {
-        if (match == null)
-            throw new IllegalArgumentException("Match cannot be null");
-        if (firstHalfResult == null)
-            throw new IllegalArgumentException("First half result cannot be null");
-        if (match.getStatus() != MatchStatus.IN_PROGRESS)
-            throw new IllegalStateException("Match must be IN_PROGRESS for second half");
-        return matchSimulator.playSecondHalf(match, firstHalfResult);
+
+    /** Returns how many periods the current sport has. */
+    public int getNumberOfPeriods() {
+        return matchSimulator.getNumberOfPeriods();
     }
     // -------------------------------------------------------------------------
     // Post-Match Effects

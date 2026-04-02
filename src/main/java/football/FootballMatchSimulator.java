@@ -6,51 +6,68 @@ import sport.MatchSimulator;
 import sport.RosterRule;
 import java.util.Random;
 
-public class FootballMatchSimulator  implements MatchSimulator {
+public class FootballMatchSimulator implements MatchSimulator {
+
+    private static final int FOOTBALL_PERIODS = 2;
+
     private final MatchFlow matchFlow;
     private final RosterRule rosterRule;
     private final FootballScoringRule scoringRule;
     private final Random random;
 
-
-    public FootballMatchSimulator(MatchFlow matchFlow, RosterRule rosterRule, FootballScoringRule scoringRule,Random random) {
-        if(matchFlow == null)throw new IllegalArgumentException("MatchFlow can not be null");
-        if(rosterRule == null)throw new IllegalArgumentException("RosterRule can not be null");
-        if(scoringRule == null)throw new IllegalArgumentException("ScoringRule can not be null");
-        if(random == null)throw new IllegalArgumentException("Random can not be null");
+    public FootballMatchSimulator(MatchFlow matchFlow, RosterRule rosterRule,
+                                  FootballScoringRule scoringRule, Random random) {
+        if (matchFlow == null) throw new IllegalArgumentException("MatchFlow can not be null");
+        if (rosterRule == null) throw new IllegalArgumentException("RosterRule can not be null");
+        if (scoringRule == null) throw new IllegalArgumentException("ScoringRule can not be null");
+        if (random == null) throw new IllegalArgumentException("Random can not be null");
 
         this.matchFlow = matchFlow;
         this.rosterRule = rosterRule;
         this.scoringRule = scoringRule;
-        this.random=random;
+        this.random = random;
     }
-    public MatchResult playFirstHalf(Match match){
-        validateMatch(match);
-        validateRosters(match);
 
-        return scoringRule.generateHalfResult(match);
+    @Override
+    public int getNumberOfPeriods() {
+        return FOOTBALL_PERIODS;
     }
-    public MatchResult playSecondHalf(Match match,MatchResult firstHalfResult){
+
+    @Override
+    public MatchResult playPeriod(Match match, int periodNumber, MatchResult currentResult) {
         validateMatch(match);
-        if(firstHalfResult == null){
-            throw new IllegalArgumentException("First Half Result can not be null");
-        }
-        MatchResult secondHalfResult =scoringRule.generateHalfResult(match);
-        int finalHomeGoals = firstHalfResult.getHomeGoals()+ secondHalfResult.getHomeGoals();
-        int finalAwayGoals = firstHalfResult.getAwayGoals()+ secondHalfResult.getAwayGoals();
 
-        MatchResult finalResult = new MatchResult(finalHomeGoals,finalAwayGoals);
-
-        if(!matchFlow.allowsDraw() && finalHomeGoals == finalAwayGoals){
-            finalResult = resolveDraw(finalResult);
+        if (periodNumber == 1) {
+            validateRosters(match);
+            return scoringRule.generateHalfResult(match);
         }
-        match.finishMatch(finalResult);
+
+        if (currentResult == null)
+            throw new IllegalArgumentException("Previous period result cannot be null");
+
+        MatchResult periodResult = scoringRule.generateHalfResult(match);
+        int totalHome = currentResult.getHomeGoals() + periodResult.getHomeGoals();
+        int totalAway = currentResult.getAwayGoals() + periodResult.getAwayGoals();
+
+        MatchResult finalResult = new MatchResult(totalHome, totalAway);
+
+        if (periodNumber == FOOTBALL_PERIODS) {
+            if (!matchFlow.allowsDraw() && totalHome == totalAway) {
+                finalResult = resolveDraw(finalResult);
+            }
+            match.finishMatch(finalResult);
+        }
+
         return finalResult;
     }
+
     @Override
-    public MatchResult simulateMatch(Match match){
-        MatchResult firstHalfResult = playFirstHalf(match);
-        return playSecondHalf(match,firstHalfResult);
+    public MatchResult simulateMatch(Match match) {
+        MatchResult result = null;
+        for (int i = 1; i <= FOOTBALL_PERIODS; i++) {
+            result = playPeriod(match, i, result);
+        }
+        return result;
     }
     private void validateMatch(Match match){
         if(match == null)throw new IllegalArgumentException("Match can not be null");
