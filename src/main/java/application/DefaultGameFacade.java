@@ -12,7 +12,7 @@ public class DefaultGameFacade implements GameFacade {
     private ISport sport;
     private Team userTeam;
     private Match currentUserMatch;
-    private MatchResult firstHalfResult;
+    private MatchResult currentPeriodResult;
     private Map<Match, MatchResult> pendingAiResults;
 
     // Core managers responsible for different subsystems
@@ -34,7 +34,7 @@ public class DefaultGameFacade implements GameFacade {
         this.playerManager = new PlayerManager();
         this.playerGenerator = new PlayerGenerator(random, playerManager);
         this.teamGenerator = new TeamGenerator(playerGenerator, random);
-        this.leagueManager = new LeagueManager(teamGenerator);
+        this.leagueManager = new LeagueManager(teamGenerator,playerGenerator);
         this.trainingManager = new TrainingManager();
 
         // MatchManager depends on sport → initialized in startNewGame()
@@ -90,13 +90,32 @@ public class DefaultGameFacade implements GameFacade {
     @Override
     public MatchResult simulateUserMatch() {
         ensureUserMatchExists();
-
         MatchResult result = null;
         int periods = matchManager.getNumberOfPeriods();
         for (int i = 1; i <= periods; i++) {
             result = matchManager.playUserPeriod(currentUserMatch, i, result);
         }
         return result;
+    }
+
+    @Override
+    public MatchResult playPeriod(int periodNumber) {
+        ensureUserMatchExists();
+        this.currentPeriodResult = matchManager.playUserPeriod(
+                currentUserMatch, periodNumber, currentPeriodResult);
+        return currentPeriodResult;
+    }
+
+    @Override
+    public int getNumberOfPeriods() {
+        return matchManager.getNumberOfPeriods();
+    }
+
+    @Override
+    public MatchResult getCurrentPeriodResult() {
+        if (currentPeriodResult == null)
+            throw new IllegalStateException("No period played yet.");
+        return currentPeriodResult;
     }
 
     @Override
@@ -120,7 +139,7 @@ public class DefaultGameFacade implements GameFacade {
 
         // Reset temporary state for next week
         this.currentUserMatch = null;
-        this.firstHalfResult = null;
+        this.currentPeriodResult = null;
         this.pendingAiResults = null;
     }
 
@@ -130,6 +149,12 @@ public class DefaultGameFacade implements GameFacade {
 
         // Apply training effects to user team
         trainingManager.applyTraining(userTeam, intensity);
+    }
+
+    @Override
+    public void applyWeeklyRecovery() {
+        ensureGameStarted();
+        trainingManager.applyWeeklyRecovery(userTeam);
     }
 
     @Override

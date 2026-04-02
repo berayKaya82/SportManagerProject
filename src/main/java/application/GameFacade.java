@@ -18,13 +18,13 @@ public interface GameFacade {
 
     // Returns the user's team
     Team getUserTeam();
-    // Sistemdeki tüm oyuncuları listele (user seçsin diye)
+    // List all players in the system (for user selection)
     List<Player> getAvailablePlayers();
 
-    // Rastgele yeni oyuncu üret ve sisteme kaydet
+    // Generate a random new player and register them in the system.
     Player generatePlayer(Gender gender);
 
-    // Kadroya hazır mı kontrol et
+    // Check if the team is ready.
     boolean isUserTeamReady();
 
     // --- Season ---
@@ -46,12 +46,22 @@ public interface GameFacade {
 
     // Applies training to the user's team for the current week
     void applyTraining(TrainingIntensity intensity);
+    void applyWeeklyRecovery();
 
     // Returns the user's match for the current week
     Match getUserMatch();
 
     // Simulates the user's match completely (first half + second half internally)
     MatchResult simulateUserMatch();
+
+    // Plays a single period, returns cumulative result
+    MatchResult playPeriod(int periodNumber);
+
+    // Returns how many periods the current sport has
+    int getNumberOfPeriods();
+
+    // Returns the cumulative result after the last played period
+    MatchResult getCurrentPeriodResult();
 
     // Submits all results of the week (user + AI matches) and advances the week
     void submitWeekResults(MatchResult userMatchResult);

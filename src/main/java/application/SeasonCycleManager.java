@@ -68,6 +68,15 @@ public class SeasonCycleManager {
                         "Season not found :" + seasonNumber)).getChampion();
     }
 
+    public void advanceToNextSeason() {
+        if (currentSeason == null)
+            throw new IllegalStateException("No season has been started yet");
+        if (!currentSeason.isCompleted())
+            throw new IllegalStateException("Current season is not completed yet");
+
+        startNewSeason();
+    }
+
     // --- Queries: League & Table ---
     public League getCurrentLeague(){
        ensureSeasonExists();
