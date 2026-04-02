@@ -91,9 +91,12 @@ public class DefaultGameFacade implements GameFacade {
     public MatchResult simulateUserMatch() {
         ensureUserMatchExists();
 
-        // Simulate match in two phases (internally handled)
-        MatchResult firstHalf = matchManager.playUserFirstHalf(currentUserMatch);
-        return matchManager.playUserSecondHalf(currentUserMatch, firstHalf);
+        MatchResult result = null;
+        int periods = matchManager.getNumberOfPeriods();
+        for (int i = 1; i <= periods; i++) {
+            result = matchManager.playUserPeriod(currentUserMatch, i, result);
+        }
+        return result;
     }
 
     @Override
