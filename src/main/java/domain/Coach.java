@@ -6,11 +6,13 @@ import java.util.Objects;
  * Represents a coach that can be hired to manage a team's training.
  *
  * <p>Coaches are tiered by level. Higher-level coaches provide better
- * training multipliers but require the manager to reach a minimum season
- * and reputation threshold before becoming available for hire.</p>
+ * training multipliers and match bonuses, but require the manager to
+ * reach a minimum season and reputation threshold before becoming
+ * available for hire.</p>
  *
- * <p>The training multiplier is influenced by both the coach's level
- * and the current coach-team relationship score stored in {@link Team}.</p>
+ * <p>The training multiplier and match bonuses are influenced by both
+ * the coach's level and the current coach-team relationship score
+ * stored in {@link Team}.</p>
  */
 public class Coach {
     private String name;
@@ -58,6 +60,35 @@ public class Coach {
         double relationBonus = 0.5 + (coachRelationship / 100.0); // 0=0.5x, 50=1.0x, 100=1.5x
         return levelBonus * relationBonus;
     }
+    
+    /**
+     * Calculates the energy loss reduction factor for post-match effects.
+     * Higher level coaches with good team relationship reduce fatigue.
+     *
+     * <p>Returns a value between 0.0 (no reduction) and 0.4 (40% less energy loss).
+     * Example: a Level 3 coach with relationship 60 → ~0.2 + 0.3 = capped at 0.4</p>
+     *
+     * @param coachRelationship the current coach-team relationship score (0–100)
+     * @return reduction factor to apply on post-match energy loss
+     */
+    public double getMatchEnergyReduction(double coachRelationship) {
+        double levelFactor = (coachLevel - 1) * 0.1;
+        double relationFactor = coachRelationship / 200.0;
+        return Math.min(0.4, levelFactor + relationFactor);
+    }
+
+    /**
+     * Calculates an integer bonus applied during match scoring.
+     * Higher level coaches with good team relationship give a scoring edge.
+     *
+     * @param coachRelationship the current coach-team relationship score (0–100)
+     * @return 0 or 1 as match score bonus
+     */
+    public int getMatchBonus(double coachRelationship) {
+        double score = (coachLevel * 0.3) + (coachRelationship / 100.0) * 0.7;
+        return score >= 1.5 ? 1 : 0;
+    }
+
     /**
      * Checks whether this coach is available for hire
      * given the manager's current season and reputation.

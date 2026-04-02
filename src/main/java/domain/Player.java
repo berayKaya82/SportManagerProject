@@ -1,13 +1,14 @@
 package domain;
 
 import java.util.Objects;
+
 /**
  * Represents a player in the sports manager game.
  *
  * <p>Each player has physical attributes (energy, condition, injury risk)
  * that change over time through training and matches.
  * Sport-specific attributes such as position and skill ratings
- * are expected to be handled by main.java.sport-specific extensions.</p>
+ * are expected to be handled by sport-specific extensions.</p>
  */
 public class Player {
     private final int id;
@@ -18,17 +19,15 @@ public class Player {
     private int condition;
     private int injuryRisk;
     private InjuryStatus injuryStatus;
+    private int injuredGamesRemaining;
 
-    public Player(int id,String name,int age,Gender gender) {
+    public Player(int id, String name, int age, Gender gender) {
         if (id <= 0)
             throw new IllegalArgumentException("ID must be greater than 0 !");
-
         if (name == null || name.trim().isEmpty())
             throw new IllegalArgumentException("Name cannot be null or empty");
-
         if (age <= 0)
             throw new IllegalArgumentException("Age must be positive");
-
         if (gender == null)
             throw new IllegalArgumentException("Gender cannot be null");
 
@@ -40,35 +39,80 @@ public class Player {
         condition = 100;
         injuryRisk = 0;
         injuryStatus = InjuryStatus.HEALTHY;
+        injuredGamesRemaining = 0;
     }
-    public int getId(){return id;}
-    public String getName(){return name;}
-    public void setName(String name){this.name = name;}
-    public int getAge(){return age;}
-    public void setAge(int age){this.age = age;}
-    public Gender getGender(){return gender;}
-    public void setGender(Gender gender){this.gender = gender;}
-    public int getEnergy(){return energy;}
-    public void setEnergy(int energy){
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+    public Gender getGender() { return gender; }
+    public void setGender(Gender gender) { this.gender = gender; }
+
+    public int getEnergy() { return energy; }
+    public void setEnergy(int energy) {
         if (energy < 0 || energy > 100)
             throw new IllegalArgumentException("Energy must be between 0 and 100");
-        this.energy = energy;}
-    public int getCondition(){return condition;}
-    public void setCondition(int condition){
+        this.energy = energy;
+    }
+
+    public int getCondition() { return condition; }
+    public void setCondition(int condition) {
         if (condition < 0 || condition > 100)
             throw new IllegalArgumentException("Condition must be between 0 and 100");
-        this.condition = condition;}
-    public int getInjuryRisk(){return injuryRisk;}
-    public void setInjuryRisk(int injuryRisk){
+        this.condition = condition;
+    }
+
+    public int getInjuryRisk() { return injuryRisk; }
+    public void setInjuryRisk(int injuryRisk) {
         if (injuryRisk < 0 || injuryRisk > 100)
             throw new IllegalArgumentException("Injury risk must be between 0 and 100");
-    this.injuryRisk = injuryRisk;}
-    public InjuryStatus getInjuryStatus(){return injuryStatus;}
-    public void setInjuryStatus(InjuryStatus injuryStatus){this.injuryStatus = injuryStatus;}
+        this.injuryRisk = injuryRisk;
+    }
+
+    public InjuryStatus getInjuryStatus() { return injuryStatus; }
+    public void setInjuryStatus(InjuryStatus injuryStatus) { this.injuryStatus = injuryStatus; }
+
+    public int getInjuredGamesRemaining() { return injuredGamesRemaining; }
+
+    /**
+     * Injures the player for a specified number of games.
+     * Sets status to INJURED and starts the countdown.
+     */
+    public void injure(int games) {
+        if (games <= 0)
+            throw new IllegalArgumentException("Injury duration must be at least 1 game");
+        this.injuryStatus = InjuryStatus.INJURED;
+        this.injuredGamesRemaining = games;
+    }
+
+    /**
+     * Called after each match week. Decrements injury counter
+     * and automatically recovers the player when it reaches 0.
+     */
+    public void recoverOneGame() {
+        if (injuryStatus != InjuryStatus.INJURED) return;
+
+        injuredGamesRemaining--;
+        if (injuredGamesRemaining <= 0) {
+            injuredGamesRemaining = 0;
+            injuryStatus = InjuryStatus.HEALTHY;
+        }
+    }
+
+    /**
+     * A player is available if healthy and has enough energy to play.
+     */
+    public boolean isAvailableForMatch() {
+        return injuryStatus == InjuryStatus.HEALTHY && energy > 0;
+    }
+
     @Override
     public String toString() {
         return name + " (ID:" + id + ", " + gender + ", Age:" + age + ")";
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

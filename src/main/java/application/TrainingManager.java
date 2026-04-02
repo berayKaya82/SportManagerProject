@@ -46,6 +46,29 @@ public class TrainingManager {
         player.setCondition(clamp(player.getCondition() + conditionGain));
         player.setInjuryRisk(clamp(player.getInjuryRisk() + injuryRiskDelta));
     }
+    /**
+     * Restores energy for all players at the start of each week.
+     * Healthy players recover more than injured ones.
+     *
+     * @param team the team to recover
+     * @throws IllegalArgumentException if team is null
+     */
+    public void applyWeeklyRecovery(Team team) {
+        if (team == null) throw new IllegalArgumentException("Team cannot be null");
+
+        for (Player player : team.getStartingPlayers()) {
+            recoverPlayer(player);
+        }
+        for (Player player : team.getSubstitutes()) {
+            recoverPlayer(player);
+        }
+    }
+
+    private void recoverPlayer(Player player) {
+        int recovery = (player.getInjuryStatus() == InjuryStatus.INJURED) ? 10 : 20;
+        player.setEnergy(clamp(player.getEnergy() + recovery));
+    }
+
     private double getCoachMultiplier(Team team) {
         if (team.getCoach() == null) return 1.0; // no coach = no bonus
         return team.getCoach().getTrainingMultiplier(team.getCoachRelationship());
