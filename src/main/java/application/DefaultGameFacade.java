@@ -1,7 +1,6 @@
 package application;
 
 import domain.*;
-import football.FootballMatchSimulator;
 import sport.ISport;
 import sport.ITactic;
 
@@ -54,10 +53,8 @@ public class DefaultGameFacade implements GameFacade {
         this.userTeam = league.getTeams().get(0);
         this.teamManager = new TeamManager(userTeam, playerManager);
 
-        // Initialize match manager using sport-specific simulator
-        FootballMatchSimulator simulator =
-                (FootballMatchSimulator) sport.getMatchSimulator();
-        this.matchManager = new MatchManager(simulator);
+        // Initialize match manager using sport's abstract simulator
+        this.matchManager = new MatchManager(sport.getMatchSimulator(), new Random());
 
         // Initialize season cycle manager and start first season
         this.seasonCycleManager = new SeasonCycleManager(
@@ -115,8 +112,8 @@ public class DefaultGameFacade implements GameFacade {
         season.recordWeekResults(allResults);
         season.advanceWeek();
 
-        // Apply post-match effects (e.g., energy loss)
-        matchManager.applyPostMatchEnergyLoss(userTeam);
+        // Apply post-match effects (energy loss, injuries, recovery)
+        matchManager.applyPostMatchEffects(userTeam);
 
         // Reset temporary state for next week
         this.currentUserMatch = null;

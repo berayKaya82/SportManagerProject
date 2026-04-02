@@ -1,35 +1,43 @@
 package application;
 
 import domain.*;
-import football.FootballMatchSimulator;
+import sport.MatchSimulator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Orchestrates the match phase of each game week.
  *
- * Responsibilities:
+ * <p>Responsibilities:</p>
+ * <ul>
+ *   <li>Simulate AI matches using the sport's MatchSimulator</li>
+ *   <li>Handle the user's match in two halves (first + second)</li>
+ *   <li>Apply post-match effects: energy loss, injuries, recovery</li>
+ *   <li>Collect and return results for SeasonCycleManager</li>
+ * </ul>
  *
- * Simulate AI matches using the sport's MatchSimulator</li>
- *  Handle the user's match in two halves (first + second)</li>
- *  Apply post-match energy loss to players</li>
- *  Collect and return results for SeasonCycleManager</li>
- *
- * Tactic changes between halves are handled by the caller (Main),
- * not by this class.
- *
+ * <p>Tactic changes between halves are handled by the caller,
+ * not by this class.</p>
  */
 public class MatchManager {
     private static final int MATCH_ENERGY_LOSS = 15;
     private static final int SUB_ENERGY_LOSS = 5;
-    private final FootballMatchSimulator matchSimulator;
+    private static final int INJURY_THRESHOLD = 50;
+    private static final int MAX_INJURY_GAMES = 5;
 
-    public MatchManager(FootballMatchSimulator matchSimulator) {
+    private final MatchSimulator matchSimulator;
+    private final Random random;
+
+    public MatchManager(MatchSimulator matchSimulator, Random random) {
         if (matchSimulator == null)
             throw new IllegalArgumentException("MatchSimulator cannot be null");
+        if (random == null)
+            throw new IllegalArgumentException("Random cannot be null");
         this.matchSimulator = matchSimulator;
+        this.random = random;
     }
 
     public Map<Match, MatchResult> simulateAIMatches(MatchWeek week, Team userTeam) {
@@ -78,18 +86,75 @@ public class MatchManager {
     // -------------------------------------------------------------------------
     // Post-Match Effects
     // -------------------------------------------------------------------------
+
+    /**
+     * Applies all post-match effects in order:
+     * energy loss (reduced by coach bonus), random injuries, injury recovery.
+     */
+    public void applyPostMatchEffects(Team team) {
+        if (team == null)
+            throw new IllegalArgumentException("Team cannot be null");
+
+        applyPostMatchEnergyLoss(team);
+        applyPostMatchInjuries(team);
+        applyInjuryRecovery(team);
+    }
+
+    /**
+     * Applies energy loss to all players. Coach reduces the loss
+     * via {@link Coach#getMatchEnergyReduction(double)}.
+     */
     public void applyPostMatchEnergyLoss(Team team) {
         if (team == null)
             throw new IllegalArgumentException("Team cannot be null");
 
+        double reduction = getCoachEnergyReduction(team);
+
         for (Player player : team.getStartingPlayers()) {
-            applyEnergyLoss(player, MATCH_ENERGY_LOSS);
+            int adjustedLoss = (int) Math.round(MATCH_ENERGY_LOSS * (1.0 - reduction));
+            applyEnergyLoss(player, adjustedLoss);
         }
         for (Player player : team.getSubstitutes()) {
-            applyEnergyLoss(player, SUB_ENERGY_LOSS);
+            int adjustedLoss = (int) Math.round(SUB_ENERGY_LOSS * (1.0 - reduction));
+            applyEnergyLoss(player, adjustedLoss);
         }
     }
-    //Check All Matches
+
+    /**
+     * Randomly injures starting players whose injuryRisk exceeds the threshold.
+     * Injury duration is 1–{@value MAX_INJURY_GAMES} games.
+     */
+    public void applyPostMatchInjuries(Team team) {
+        if (team == null)
+            throw new IllegalArgumentException("Team cannot be null");
+
+        for (Player player : team.getStartingPlayers()) {
+            if (player.getInjuryStatus() == InjuryStatus.INJURED) continue;
+
+            if (player.getInjuryRisk() > INJURY_THRESHOLD
+                    && random.nextInt(100) < player.getInjuryRisk()) {
+                int games = random.nextInt(MAX_INJURY_GAMES) + 1;
+                player.injure(games);
+            }
+        }
+    }
+
+    /**
+     * Decrements the injury counter for all injured players in the team.
+     * Players whose counter reaches 0 are automatically set to HEALTHY.
+     */
+    public void applyInjuryRecovery(Team team) {
+        if (team == null)
+            throw new IllegalArgumentException("Team cannot be null");
+
+        for (Player player : team.getStartingPlayers()) {
+            player.recoverOneGame();
+        }
+        for (Player player : team.getSubstitutes()) {
+            player.recoverOneGame();
+        }
+    }
+
     public boolean isWeekComplete(MatchWeek week) {
         if (week == null)
             throw new IllegalArgumentException("Week cannot be null");
@@ -101,5 +166,10 @@ public class MatchManager {
     private void applyEnergyLoss(Player player, int loss) {
         if (player.getInjuryStatus() == InjuryStatus.INJURED) return;
         player.setEnergy(Math.max(0, player.getEnergy() - loss));
+    }
+
+    private double getCoachEnergyReduction(Team team) {
+        if (team.getCoach() == null) return 0.0;
+        return team.getCoach().getMatchEnergyReduction(team.getCoachRelationship());
     }
 }
