@@ -91,7 +91,7 @@ public class Team {
             throw new IllegalArgumentException("Player gender mismatch with team");
 
         if (startingPlayers.contains(player) || substitutes.contains(player))
-            throw new IllegalStateException("Player already in team");  // ← bunu ekle
+            throw new IllegalStateException("Player already in team");
 
         substitutes.add(player);
     }
@@ -103,6 +103,25 @@ public class Team {
         if(!substitutes.remove(player))
             throw new NoSuchElementException("Player not in substitute list");
     }
+
+    /**
+     * Swaps a starting player with a substitute.
+     * The outgoing player moves to the bench, incoming player joins the lineup.
+     */
+    public void substitutePlayer(Player out, Player in) {
+        if (out == null || in == null)
+            throw new IllegalArgumentException("Players cannot be null");
+        if (!startingPlayers.contains(out))
+            throw new IllegalStateException("Player to remove is not in starting lineup");
+        if (!substitutes.contains(in))
+            throw new IllegalStateException("Player to add is not on the bench");
+
+        startingPlayers.remove(out);
+        substitutes.remove(in);
+        startingPlayers.add(in);
+        substitutes.add(out);
+    }
+
     @Override
     public String toString() {
         return name;
