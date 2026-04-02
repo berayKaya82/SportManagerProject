@@ -1,6 +1,7 @@
 package application;
 
 import domain.*;
+import football.FootballTactic;
 import sport.ISport;
 
 import java.util.*;
@@ -15,6 +16,7 @@ public class LeagueManager {
     private final Map<Gender, Map<String, League>> leagues = new HashMap<>();
 
     private final TeamGenerator teamGenerator;
+    private final PlayerGenerator playerGenerator;
 
     // Auto-increment team ID
     private int nextTeamId = 1;
@@ -22,20 +24,17 @@ public class LeagueManager {
     // Total teams in a league
     private static final int TOTAL_TEAMS = 18;
 
-    /**
-     * Initializes LeagueManager with required dependencies.
-     * @param teamGenerator team generator instance
-     * @throws IllegalArgumentException if teamGenerator is null
-     */
-    public LeagueManager(TeamGenerator teamGenerator) {
+    public LeagueManager(TeamGenerator teamGenerator, PlayerGenerator playerGenerator) {
         if (teamGenerator == null)
             throw new IllegalArgumentException("TeamGenerator cannot be null");
+        if (playerGenerator == null)
+            throw new IllegalArgumentException("PlayerGenerator cannot be null");
 
         this.teamGenerator = teamGenerator;
+        this.playerGenerator = playerGenerator;
     }
 
     public League createLeagueWithUserTeam(String teamName, Gender gender, ISport sport) {
-
         if (teamName == null || teamName.isBlank())
             throw new IllegalArgumentException("Team name cannot be empty");
         if (gender == null || sport == null)
@@ -47,6 +46,15 @@ public class LeagueManager {
 
         int userTeamId = nextTeamId++;
         Team userTeam = new Team(userTeamId, teamName, gender);
+
+        int startingCount = sport.getRosterRule().getStartingPlayerCount();
+        List<Player> starters = playerGenerator.generatePlayersByGender(startingCount, gender);
+        for (Player p : starters) {
+            userTeam.addStartingPlayer(p);
+        }
+
+        userTeam.setCoach(new Coach("Default Coach", 1, 1, 0));
+        userTeam.setTactic(new FootballTactic(PlayStyle.BALANCED));
 
         List<Team> teams = new ArrayList<>();
         teams.add(userTeam);
