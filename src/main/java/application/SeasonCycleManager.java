@@ -52,32 +52,6 @@ public class SeasonCycleManager {
         currentSeason.recordWeekResults(results);
         currentSeason.advanceWeek();
     }
-    public void simulateCurrentWeek(){
-        ensureSeasonActive();
-
-        List<Match> matches = currentSeason.getCurrentWeek().getMatches();
-        Map<Match,MatchResult> results = new LinkedHashMap<>();
-        Random random = new Random();
-
-        for (Match match : matches){
-            //Random goals between 0-5 for each team
-            int homeGoals = random.nextInt(6);
-            int awayGoals = random.nextInt(6);
-            results.put(match,new MatchResult(homeGoals,awayGoals));
-        }
-        playCurrentWeek(results);
-    }
-    public void advanceToNextSeason(){
-        if (currentSeason == null)
-            throw new IllegalStateException(
-                    "No season has been started yet");
-        if (!currentSeason.isCompleted())
-            throw new IllegalStateException(
-                    "Current season is not completed yet");
-
-        startNewSeason();
-    }
-
     // --- Queries: Season ---
         public Season getCurrentSeason(){return currentSeason;}
         public int getSeasonNumber()       { return seasonNumber; }

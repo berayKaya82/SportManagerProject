@@ -1,15 +1,22 @@
 package domain;
 
+import sport.TieBreakerRule;
+
 import java.util.*;
 
 public class LeagueTable {
     private final Map<Team, StandingEntry> entries;
     private final List<Match> playedMatches;
+    private final TieBreakerRule tieBreakerRule;
 
-    public LeagueTable() {
+    public LeagueTable(TieBreakerRule tieBreakerRule) {
+        if (tieBreakerRule == null)
+            throw new IllegalArgumentException("TieBreakerRule cannot be null");
         this.entries = new LinkedHashMap<>();
         this.playedMatches = new ArrayList<>();
+        this.tieBreakerRule = tieBreakerRule;
     }
+
     // --- Registration ---
     public void registerTeam(Team team) {
         if (team == null) throw new IllegalArgumentException("Team cannot be null");
@@ -34,49 +41,12 @@ public class LeagueTable {
 
         playedMatches.add(match);
     }
+
     // --- Sorted standings ---
-    public List<StandingEntry> getSortedStandings(){
-        List<StandingEntry>sorted = new ArrayList<>(entries.values());
-        sorted.sort(this::compareEntries);
+    public List<StandingEntry> getSortedStandings() {
+        List<StandingEntry> sorted = new ArrayList<>(entries.values());
+        sorted.sort((a, b) -> tieBreakerRule.compare(a, b, playedMatches));
         return Collections.unmodifiableList(sorted);
-    }
-    private int compareEntries(StandingEntry a, StandingEntry b) {
-        // 1. Points
-        int cmp = Integer.compare(b.getPoints(), a.getPoints());
-        if (cmp != 0) return cmp;
-
-        // 2. Head-to-head
-        cmp = compareHeadToHead(a.getTeam(), b.getTeam());
-        if (cmp != 0) return cmp;
-
-        // 3. Goal difference
-        cmp = Integer.compare(b.getGoalDifference(), a.getGoalDifference());
-        if (cmp != 0) return cmp;
-
-        // 4. Coin toss — deterministic via hash, keeps sort contract valid
-        return Integer.compare(
-                System.identityHashCode(a.getTeam()),
-                System.identityHashCode(b.getTeam())
-        );
-    }
-    private int compareHeadToHead(Team teamA, Team teamB) {
-        int pointsA = 0, pointsB = 0;
-
-        for (Match m : playedMatches) {
-            boolean aHome = m.getHomeTeam().equals(teamA) && m.getAwayTeam().equals(teamB);
-            boolean bHome = m.getHomeTeam().equals(teamB) && m.getAwayTeam().equals(teamA);
-            if (!aHome && !bHome) continue;
-
-            if (m.isDraw()) {
-                pointsA++;
-                pointsB++;
-            } else {
-                if (m.getWinner().equals(teamA)) pointsA += 2;
-                else                             pointsB += 2;
-            }
-        }
-
-        return Integer.compare(pointsB, pointsA); // higher = ranked first
     }
     // --- Queries ---
 
