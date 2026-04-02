@@ -31,7 +31,7 @@ public class League {
         this.gender = gender;
         this.sport = sport;
         this.teams = Collections.unmodifiableList(new ArrayList<>(teams));
-        this.leagueTable = new LeagueTable();
+        this.leagueTable = new LeagueTable(sport.getTieBreakerRule());
         this.fixture = null;
     }
 
