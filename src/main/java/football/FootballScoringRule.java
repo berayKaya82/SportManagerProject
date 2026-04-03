@@ -87,24 +87,27 @@ public class FootballScoringRule implements ScoringRule {
  }
  private double getAverageEnergy(Team team){
         List<Player> players = team.getStartingPlayers();
-        if (players.isEmpty())return 0;
+        int count = 0;
         int total = 0;
 
         for(Player player : players){
+            if (!player.isAvailableForMatch()) continue;
             total += player.getEnergy();
+            count++;
         }
-        return (double) total / players.size();
-
+        return count == 0 ? 0 : (double) total / count;
  }
  private double getAverageCondition(Team team){
         List<Player> players = team.getStartingPlayers();
-        if(players.isEmpty())return 0;
-        int total=0;
+        int count = 0;
+        int total = 0;
 
-        for(Player player :players){
+        for(Player player : players){
+            if (!player.isAvailableForMatch()) continue;
             total += player.getCondition();
+            count++;
         }
-        return (double) total/ players.size();
+        return count == 0 ? 0 : (double) total / count;
  }
  private int getCoachMatchBonus(Team team) {
         if (team.getCoach() == null) return 0;

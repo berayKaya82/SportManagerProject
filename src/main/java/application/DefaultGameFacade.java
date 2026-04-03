@@ -134,8 +134,8 @@ public class DefaultGameFacade implements GameFacade {
         season.recordWeekResults(allResults);
         season.advanceWeek();
 
-        // Apply post-match effects (energy loss, injuries, recovery)
-        matchManager.applyPostMatchEffects(userTeam);
+        // Apply post-match effects (condition, energy loss, injuries, recovery)
+        matchManager.applyPostMatchEffects(userTeam, currentUserMatch, userMatchResult);
 
         // Reset temporary state for next week
         this.currentUserMatch = null;

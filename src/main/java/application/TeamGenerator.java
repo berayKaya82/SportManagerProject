@@ -1,10 +1,8 @@
 package application;
 
 import domain.*;
-// import football.FootballTactic; // Not used currently
 import sport.ISport;
 import sport.ITactic;
-// import sport.ITactic; // Tactic system temporarily disabled
 
 import java.util.*;
 

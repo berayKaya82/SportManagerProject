@@ -46,8 +46,7 @@ public class StandingEntry {
     }
 
     public int getPoints() {
-        // From the PDF: win = 2pts, draw = 1pt, loss = 0pts
-        return (wins * 2) + (draws * 1);
+        return (wins * 2) + draws;
     }
 
     public int getGoalDifference() {
