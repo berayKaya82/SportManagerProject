@@ -69,10 +69,7 @@ public class League {
             throw new IllegalArgumentException("Result cannot be null or empty");
         MatchWeek current = fixture.getCurrentWeek();
 
-        for (Map.Entry<Match, MatchResult> entry : results.entrySet()) {
-            Match match = entry.getKey();
-            MatchResult result = entry.getValue();
-
+        for (Match match : results.keySet()) {
             if (!current.hasMatch(match))
                 throw new IllegalArgumentException(
                         "Match does not belong to current week");
