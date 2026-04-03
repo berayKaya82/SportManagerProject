@@ -53,6 +53,12 @@ public class LeagueManager {
             userTeam.addStartingPlayer(p);
         }
 
+        int subCount = 7;
+        List<Player> subs = playerGenerator.generatePlayersByGender(subCount, gender);
+        for (Player p : subs) {
+            userTeam.addSubstitute(p);
+        }
+
         userTeam.setCoach(new Coach("Default Coach", 1, 1, 0));
         userTeam.setTactic(new FootballTactic(PlayStyle.BALANCED));
 

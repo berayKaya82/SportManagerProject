@@ -57,15 +57,20 @@ public class TrainingManager {
         if (team == null) throw new IllegalArgumentException("Team cannot be null");
 
         for (Player player : team.getStartingPlayers()) {
-            recoverPlayer(player);
+            recoverPlayer(player, false);
         }
         for (Player player : team.getSubstitutes()) {
-            recoverPlayer(player);
+            recoverPlayer(player, true);
         }
     }
 
-    private void recoverPlayer(Player player) {
-        int recovery = (player.getInjuryStatus() == InjuryStatus.INJURED) ? 10 : 20;
+    private void recoverPlayer(Player player, boolean isSub) {
+        int recovery;
+        if (player.getInjuryStatus() == InjuryStatus.INJURED) {
+            recovery = 10;
+        } else {
+            recovery = isSub ? 25 : 15;
+        }
         player.setEnergy(clamp(player.getEnergy() + recovery));
     }
 

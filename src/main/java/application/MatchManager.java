@@ -98,15 +98,58 @@ public class MatchManager {
 
     /**
      * Applies all post-match effects in order:
-     * energy loss (reduced by coach bonus), random injuries, injury recovery.
+     * condition change based on result, energy loss, injuries, recovery.
      */
-    public void applyPostMatchEffects(Team team) {
+    public void applyPostMatchEffects(Team team, Match match, MatchResult result) {
         if (team == null)
             throw new IllegalArgumentException("Team cannot be null");
+        if (match == null || result == null)
+            throw new IllegalArgumentException("Match and result cannot be null");
 
+        applyConditionChange(team, match, result);
         applyPostMatchEnergyLoss(team);
         applyPostMatchInjuries(team);
         applyInjuryRecovery(team);
+    }
+
+    private static final int BASE_CONDITION_WEAR = -3;
+    private static final int WIN_CONDITION_BONUS = 3;
+    private static final int DRAW_CONDITION_PENALTY = -2;
+    private static final int LOSS_CONDITION_PENALTY = -8;
+
+    /**
+     * Adjusts condition for all healthy players after a match.
+     * Every match causes a base wear of {@value BASE_CONDITION_WEAR},
+     * plus a result-based modifier: win {@value WIN_CONDITION_BONUS},
+     * draw {@value DRAW_CONDITION_PENALTY}, loss {@value LOSS_CONDITION_PENALTY}.
+     * Net effect: win 0, draw -5, loss -11.
+     */
+    public void applyConditionChange(Team team, Match match, MatchResult result) {
+        boolean isHome = match.getHomeTeam().equals(team);
+        int teamGoals = isHome ? result.getHomeGoals() : result.getAwayGoals();
+        int opponentGoals = isHome ? result.getAwayGoals() : result.getHomeGoals();
+
+        int resultDelta;
+        if (teamGoals > opponentGoals) {
+            resultDelta = WIN_CONDITION_BONUS;
+        } else if (teamGoals == opponentGoals) {
+            resultDelta = DRAW_CONDITION_PENALTY;
+        } else {
+            resultDelta = LOSS_CONDITION_PENALTY;
+        }
+
+        int conditionDelta = BASE_CONDITION_WEAR + resultDelta;
+
+        for (Player player : team.getStartingPlayers()) {
+            if (player.getInjuryStatus() == InjuryStatus.INJURED) continue;
+            int newCondition = Math.max(0, Math.min(100, player.getCondition() + conditionDelta));
+            player.setCondition(newCondition);
+        }
+        for (Player player : team.getSubstitutes()) {
+            if (player.getInjuryStatus() == InjuryStatus.INJURED) continue;
+            int newCondition = Math.max(0, Math.min(100, player.getCondition() + conditionDelta));
+            player.setCondition(newCondition);
+        }
     }
 
     /**
