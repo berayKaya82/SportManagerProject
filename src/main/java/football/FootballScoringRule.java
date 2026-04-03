@@ -55,6 +55,7 @@ public class FootballScoringRule implements ScoringRule {
         score -= getDefenseEffectFromTactic(defendingStyle);
         score += getEnergyBonus(attackingTeam);
         score += getConditionBonus(attackingTeam);
+        score += getCoachMatchBonus(attackingTeam);
 
         return clampGoals(score);
  }
@@ -104,6 +105,10 @@ public class FootballScoringRule implements ScoringRule {
             total += player.getCondition();
         }
         return (double) total/ players.size();
+ }
+ private int getCoachMatchBonus(Team team) {
+        if (team.getCoach() == null) return 0;
+        return team.getCoach().getMatchBonus(team.getCoachRelationship());
  }
  private int clampGoals(int goals){
         return Math.max(0,goals);
