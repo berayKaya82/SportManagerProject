@@ -1,0 +1,120 @@
+package handball;
+import domain.Match;
+import domain.MatchResult;
+import domain.PlayStyle;
+import domain.Player;
+import domain.Team;
+import sport.ScoringRule;
+import java.util.List;
+import java.util.Random;
+
+public class HandballScoringRule implements ScoringRule {
+    private final Random random;
+
+    public HandballScoringRule(Random random){
+        if(random==null){
+            throw new IllegalArgumentException("Random can not be null");
+        }
+        this.random=random;
+    }
+    @Override
+    public MatchResult generateResult(Match match){
+        return generateScore(match,false);
+    }
+    public MatchResult generateHalfResult(Match match){
+        return generateScore(match,true);
+    }
+
+
+    private MatchResult generateScore(Match match,boolean isHalf){
+        if(match == null){
+            throw new IllegalArgumentException("Match can not be null");
+        }
+        Team homeTeam = match.getHomeTeam();
+        Team awayTeam = match.getAwayTeam();
+
+        int homeGoals = calculateGoals(homeTeam,awayTeam,true,isHalf);
+        int awayGoals = calculateGoals(awayTeam,homeTeam,false,isHalf);
+
+        return new MatchResult(homeGoals , awayGoals);
+    }
+    private int calculateGoals(Team attackingTeam,Team defendingTeam , boolean isHome,boolean isHalf){
+        int score;
+        if(isHalf){
+            score =10 +random.nextInt(9);//first half 10-18
+        }else{
+            score=20 +random.nextInt(16);//end of the match 20-35
+        }
+        if(isHome){
+            score +=1;//home advantage
+        }
+        PlayStyle attackingStyle = attackingTeam.getTactic().getPlayStyle();
+        PlayStyle defendingStyle = defendingTeam.getTactic().getPlayStyle();
+
+        score += getAttackBonusFromTactic(attackingStyle);
+        score -= getDefenseEffectFromTactic(defendingStyle);
+        score += getEnergyBonus(attackingTeam);
+        score += getConditionBonus(attackingTeam);
+        score += getCoachMatchBonus(attackingTeam);
+
+        return clampGoals(score);
+    }
+    private int getAttackBonusFromTactic(PlayStyle style){
+        return switch(style){
+            case OFFENSIVE -> 1;
+            case BALANCED -> 0;
+            case DEFENSIVE -> -1;
+        };
+    }
+    private int getDefenseEffectFromTactic(PlayStyle style){
+        return switch (style){
+            case OFFENSIVE -> -1;
+            case BALANCED -> 0;
+            case DEFENSIVE -> 1;
+        };
+    }
+    private int getEnergyBonus(Team team){
+        double avgEnergy = getAverageEnergy(team);
+        if(avgEnergy >= 80)return 1;
+        if(avgEnergy <= 50)return -1;
+        return 0;
+    }
+    private int getConditionBonus(Team team){
+        double avgCondition=getAverageCondition(team);
+        if(avgCondition >= 80)return 1;
+        if(avgCondition <= 50)return -1;
+        return 0;
+    }
+    private double getAverageEnergy(Team team){
+        List<Player> players = team.getStartingPlayers();
+        int count = 0;
+        int total = 0;
+
+        for(Player player : players){
+            if (!player.isAvailableForMatch()) continue;
+            total += player.getEnergy();
+            count++;
+        }
+        return count == 0 ? 0 : (double) total / count;
+    }
+    private double getAverageCondition(Team team){
+        List<Player> players = team.getStartingPlayers();
+        int count = 0;
+        int total = 0;
+
+        for(Player player : players){
+            if (!player.isAvailableForMatch()) continue;
+            total += player.getCondition();
+            count++;
+        }
+        return count == 0 ? 0 : (double) total / count;
+    }
+    private int getCoachMatchBonus(Team team) {
+        if (team.getCoach() == null) return 0;
+        return team.getCoach().getMatchBonus(team.getCoachRelationship());
+    }
+    private int clampGoals(int goals){
+        return Math.max(0,goals);
+    }
+}
+
