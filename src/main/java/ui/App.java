@@ -12,9 +12,10 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         SceneManager.getInstance().setStage(stage);
+        stage.setTitle("Sports Manager");
         SceneManager.getInstance().switchTo("main-menu", facade);
 
-        stage.setTitle("Sports Manager");
+
     }
 
     public static void main(String[] args) {
