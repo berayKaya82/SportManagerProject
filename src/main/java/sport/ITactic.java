@@ -3,4 +3,6 @@ import domain.PlayStyle;
 
 public interface ITactic {
     PlayStyle getPlayStyle();
+    ITactic getDefaultTactic();
 }
+

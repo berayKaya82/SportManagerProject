@@ -1,4 +1,5 @@
 package handball;
+import domain.PlayStyle;
 import sport.*;
 import java.util.Random;
 
@@ -43,4 +44,7 @@ public class HandballSport implements ISport {
     @Override
     public TieBreakerRule getTieBreakerRule() { return tieBreakerRule;
     }
+
+    @Override
+    public ITactic getDefaultTactic() { return new HandballTactic(PlayStyle.BALANCED); }
 }
