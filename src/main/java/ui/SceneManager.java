@@ -3,8 +3,7 @@ import application.GameFacade;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ui.controller.MainMenuController;
-import ui.controller.NewGameController;
+import ui.controller.*;
 
 
 public class SceneManager {
@@ -34,9 +33,17 @@ public class SceneManager {
             case "main-menu":
                 root = new MainMenuController(facade).getRoot();
                 break;
-
             case "new-game":
-                root = new NewGameController(facade).getRoot();
+                root = new GameStartController(facade).getRoot();
+                break;
+            case "dashboard":
+                root = new DashboardController(facade).getRoot();
+                break;
+            case "training":
+                root = new TrainingController(facade).getRoot();
+                break;
+            case "roster":
+                root = new RosterController(facade).getRoot();
                 break;
 
             default:
