@@ -5,6 +5,12 @@
 .root {
     -fx-background-color: #0a0e1a;
     -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #e5e7eb;
 }
 
 /* ---- Progress bar ---- */

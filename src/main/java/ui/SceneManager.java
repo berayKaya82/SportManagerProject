@@ -54,6 +54,24 @@ public class SceneManager {
             case "standings":
                 root = new StandingsController(facade).getRoot();
                 break;
+            case "pre-match":
+                root = buildPlaceholder("Pre-Match", facade);
+                break;
+            case "match":
+                root = buildPlaceholder("Match", facade);
+                break;
+            case "half-time":
+                root = buildPlaceholder("Half-Time", facade);
+                break;
+            case "post-match":
+                root = buildPlaceholder("Post-Match ", facade);
+                break;
+            case "season-end":
+                root = buildPlaceholder("Season End ", facade);
+                break;
+            case "save-load":
+                root = buildPlaceholder("Save / Load — coming soon", facade);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown screen: " + screenName);
         }
