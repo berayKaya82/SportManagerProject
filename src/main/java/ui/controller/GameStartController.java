@@ -60,7 +60,9 @@ public class GameStartController {
                 return;
             }
 
-            ISport sport = new football.FootballSport();  // handball eklenince güncellenecek
+            ISport sport = sportBox.getValue().equals("HANDBALL")
+                    ? new handball.HandballSport()
+                    : new football.FootballSport();
 
             facade.startNewGame(managerName, teamName, gender, sport);
             SceneManager.getInstance().switchTo("dashboard", facade);

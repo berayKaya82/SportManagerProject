@@ -125,11 +125,20 @@ public class TeamGenerator {
 
         switch (r) {
             case 0:
-                return () -> PlayStyle.DEFENSIVE;
+                return new ITactic() {
+                    public PlayStyle getPlayStyle() { return PlayStyle.DEFENSIVE; }
+                    public ITactic getDefaultTactic() { return this; }
+                };
             case 1:
-                return () -> PlayStyle.OFFENSIVE;
+                return new ITactic() {
+                    public PlayStyle getPlayStyle() { return PlayStyle.OFFENSIVE; }
+                    public ITactic getDefaultTactic() { return this; }
+                };
             default:
-                return () -> PlayStyle.BALANCED;
+                return new ITactic() {
+                    public PlayStyle getPlayStyle() { return PlayStyle.BALANCED; }
+                    public ITactic getDefaultTactic() { return this; }
+                };
         }
     }
 

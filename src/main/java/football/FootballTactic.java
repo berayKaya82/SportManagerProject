@@ -17,6 +17,12 @@ public class FootballTactic implements ITactic {
     public PlayStyle getPlayStyle(){
       return playStyle;
 }
+
+@Override
+    public sport.ITactic getDefaultTactic(){
+      return new FootballTactic(PlayStyle.BALANCED);
+}
+
 @Override
     public String toString(){
       return "FootballTactic{" + "playStyle=" + playStyle + "}";
