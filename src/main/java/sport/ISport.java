@@ -7,4 +7,5 @@ public interface ISport {
     RosterRule getRosterRule();
     ScoringRule getScoringRule();
     TieBreakerRule getTieBreakerRule();
+    ITactic getDefaultTactic();
 }

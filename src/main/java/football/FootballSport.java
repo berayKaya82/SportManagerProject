@@ -1,5 +1,6 @@
 package football;
 
+import domain.PlayStyle;
 import sport.*;
 
 import java.util.Random;
@@ -51,4 +52,7 @@ public class FootballSport implements ISport {
     public TieBreakerRule getTieBreakerRule() {
         return tieBreakerRule;
     }
+
+    @Override
+    public ITactic getDefaultTactic() { return new FootballTactic(PlayStyle.BALANCED); }
 }

@@ -1,7 +1,6 @@
 package application;
 
 import domain.*;
-import football.FootballTactic;
 import sport.ISport;
 
 import java.util.*;
@@ -60,7 +59,7 @@ public class LeagueManager {
         }
 
         userTeam.setCoach(new Coach("Default Coach", 1, 1, 0));
-        userTeam.setTactic(new FootballTactic(PlayStyle.BALANCED));
+        userTeam.setTactic(sport.getDefaultTactic());
 
         List<Team> teams = new ArrayList<>();
         teams.add(userTeam);
