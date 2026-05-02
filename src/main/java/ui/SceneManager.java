@@ -54,6 +54,9 @@ public class SceneManager {
             case "standings":
                 root = new StandingsController(facade).getRoot();
                 break;
+            case "vs-screen":
+                root = new VsScreenController(facade).getRoot();
+                break;
             case "pre-match":
                 root = new PreMatchController(facade).getRoot();
                 break;
@@ -76,14 +79,15 @@ public class SceneManager {
                 throw new IllegalArgumentException("Unknown screen: " + screenName);
         }
 
-        Scene scene = new Scene(root, 960, 660);
-
-        //CSS
-        scene.getStylesheets().add(
-                getClass().getResource("/style.css").toExternalForm()
-        );
-
-        stage.setScene(scene);
+        if (stage.getScene() == null) {
+            Scene scene = new Scene(root, 960, 660);
+            scene.getStylesheets().add(
+                    getClass().getResource("/style.css").toExternalForm()
+            );
+            stage.setScene(scene);
+        } else {
+            stage.getScene().setRoot(root);
+        }
         stage.show();
     }
 
