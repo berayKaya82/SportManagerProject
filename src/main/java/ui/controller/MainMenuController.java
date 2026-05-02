@@ -1,12 +1,15 @@
 package ui.controller;
 
 import application.GameFacade;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.geometry.Pos;
-import javafx.geometry.Insets;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import ui.SceneManager;
 
 public class MainMenuController {
@@ -18,25 +21,59 @@ public class MainMenuController {
     }
 
     public Parent getRoot() {
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(40));
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: #0a0e1a;");
 
-        Label title = new Label("Sports Manager");
+        VBox content = new VBox(12);
+        content.setAlignment(Pos.CENTER);
+        content.setMaxWidth(320);
 
-        Button newGameBtn = new Button("New Game");
+        // Title block
+        VBox titleBlock = new VBox(6);
+        titleBlock.setAlignment(Pos.CENTER);
+        titleBlock.setPadding(new Insets(0, 0, 32, 0));
+
+        Label title = new Label("SPORTS MANAGER");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 36));
+        title.setTextFill(Color.WHITE);
+
+        Label subtitle = new Label("Pro Edition");
+        subtitle.setFont(Font.font("Arial", 14));
+        subtitle.setTextFill(Color.web("#22c55e"));
+
+        titleBlock.getChildren().addAll(title, subtitle);
+
+        // Buttons
+        Button newGameBtn  = buildMenuButton("New Game",         "btn-primary");
+        Button loadGameBtn = buildMenuButton("Load Saved Game",  "btn-secondary");
+        Button exitBtn     = buildMenuButton("Exit",             "btn-red");
+
         newGameBtn.setOnAction(e ->
                 SceneManager.getInstance().switchTo("new-game", facade));
-
-        Button loadGameBtn = new Button("Load Saved Game");
         loadGameBtn.setOnAction(e ->
                 SceneManager.getInstance().switchTo("save-load", facade));
-
-        Button exitBtn = new Button("Exit");
         exitBtn.setOnAction(e ->
                 javafx.application.Platform.exit());
 
-        root.getChildren().addAll(title, newGameBtn, loadGameBtn, exitBtn);
+        // Version label at bottom
+        Label version = new Label("v1.0  —  M3 Project");
+        version.setFont(Font.font("Arial", 11));
+        version.setTextFill(Color.web("#374151"));
+
+        VBox versionBlock = new VBox(version);
+        versionBlock.setAlignment(Pos.CENTER);
+        versionBlock.setPadding(new Insets(40, 0, 0, 0));
+
+        content.getChildren().addAll(titleBlock, newGameBtn, loadGameBtn, exitBtn, versionBlock);
+        root.getChildren().add(content);
         return root;
+    }
+
+    private Button buildMenuButton(String text, String styleClass) {
+        Button btn = new Button(text);
+        btn.getStyleClass().addAll("btn", styleClass);
+        btn.setMaxWidth(Double.MAX_VALUE);
+        btn.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        return btn;
     }
 }

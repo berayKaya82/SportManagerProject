@@ -6,8 +6,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import sport.ISport;
 import ui.SceneManager;
 
@@ -20,42 +22,86 @@ public class GameStartController {
     }
 
     public Parent getRoot() {
-        VBox root = new VBox(15);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(40));
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: #0a0e1a;");
 
-        Label title = new Label("New Game");
+        VBox card = new VBox(0);
+        card.setMaxWidth(420);
+        card.setStyle(
+            "-fx-background-color: #111827;" +
+            "-fx-background-radius: 12;" +
+            "-fx-border-color: #1f2937;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 12;"
+        );
 
-        // Team name
-        Label teamLabel = new Label("Team Name:");
-        TextField teamField = new TextField();
-        teamField.setPromptText("Enter team name");
+        // Header
+        VBox header = new VBox(4);
+        header.setPadding(new Insets(24, 28, 20, 28));
+        header.setStyle(
+            "-fx-background-color: linear-gradient(to bottom, #052e16, #111827);" +
+            "-fx-background-radius: 12 12 0 0;"
+        );
 
-        // Manager name
-        Label managerLabel = new Label("Manager Name:");
+        Label title = new Label("NEW GAME");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        title.setTextFill(Color.WHITE);
+
+        Label subtitle = new Label("Set up your team and get started");
+        subtitle.setFont(Font.font("Arial", 13));
+        subtitle.setTextFill(Color.web("#6b7280"));
+
+        header.getChildren().addAll(title, subtitle);
+
+        // Form body
+        VBox form = new VBox(16);
+        form.setPadding(new Insets(24, 28, 28, 28));
+
         TextField managerField = new TextField();
-        managerField.setPromptText("Enter manager name");
+        managerField.setPromptText("e.g. Alex Ferguson");
+        managerField.getStyleClass().add("text-field");
+        managerField.setMaxWidth(Double.MAX_VALUE);
 
-        // Sport selection
-        Label sportLabel = new Label("Sport:");
+        TextField teamField = new TextField();
+        teamField.setPromptText("e.g. Manchester United");
+        teamField.getStyleClass().add("text-field");
+        teamField.setMaxWidth(Double.MAX_VALUE);
+
         ComboBox<String> sportBox = new ComboBox<>();
         sportBox.getItems().addAll("FOOTBALL", "HANDBALL");
         sportBox.setValue("FOOTBALL");
+        sportBox.setMaxWidth(Double.MAX_VALUE);
 
-        // Gender selection
-        Label genderLabel = new Label("Gender:");
         ComboBox<Gender> genderBox = new ComboBox<>();
         genderBox.getItems().addAll(Gender.values());
         genderBox.setValue(Gender.MALE);
+        genderBox.setMaxWidth(Double.MAX_VALUE);
+
+        form.getChildren().addAll(
+                formRow("Manager Name", managerField),
+                formRow("Team Name",    teamField),
+                formRow("Sport",        sportBox),
+                formRow("League Gender", genderBox)
+        );
 
         // Buttons
-        Button startBtn = new Button("Start");
-        startBtn.setOnAction(e -> {
-            String teamName = teamField.getText().trim();
-            String managerName = managerField.getText().trim();
-            Gender gender = genderBox.getValue();
+        HBox btnRow = new HBox(12);
+        btnRow.setPadding(new Insets(4, 28, 24, 28));
+        btnRow.setAlignment(Pos.CENTER_RIGHT);
 
-            if (teamName.isEmpty() || managerName.isEmpty()) {
+        Button backBtn = new Button("← Back");
+        backBtn.getStyleClass().addAll("btn", "btn-secondary");
+        backBtn.setOnAction(e ->
+                SceneManager.getInstance().switchTo("main-menu", facade));
+
+        Button startBtn = new Button("Start Game →");
+        startBtn.getStyleClass().addAll("btn", "btn-primary");
+        startBtn.setOnAction(e -> {
+            String managerName = managerField.getText().trim();
+            String teamName    = teamField.getText().trim();
+            Gender gender      = genderBox.getValue();
+
+            if (managerName.isEmpty() || teamName.isEmpty()) {
                 new Alert(Alert.AlertType.WARNING, "Please fill in all fields.").showAndWait();
                 return;
             }
@@ -68,22 +114,20 @@ public class GameStartController {
             SceneManager.getInstance().switchTo("dashboard", facade);
         });
 
-        Button backBtn = new Button("Back");
-        backBtn.setOnAction(e ->
-                SceneManager.getInstance().switchTo("main-menu", facade));
+        btnRow.getChildren().addAll(backBtn, startBtn);
 
-        HBox buttons = new HBox(10, backBtn, startBtn);
-        buttons.setAlignment(Pos.CENTER);
-
-        root.getChildren().addAll(
-                title,
-                teamLabel, teamField,
-                managerLabel, managerField,
-                sportLabel, sportBox,
-                genderLabel, genderBox,
-                buttons
-        );
-
+        card.getChildren().addAll(header, form, btnRow);
+        StackPane.setAlignment(card, Pos.CENTER);
+        root.getChildren().add(card);
         return root;
+    }
+
+    private VBox formRow(String labelText, Control field) {
+        VBox row = new VBox(6);
+        Label lbl = new Label(labelText.toUpperCase());
+        lbl.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+        lbl.setTextFill(Color.web("#6b7280"));
+        row.getChildren().addAll(lbl, field);
+        return row;
     }
 }
