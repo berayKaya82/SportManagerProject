@@ -105,7 +105,7 @@ public class TrainingController {
         doneBtn.setOnAction(e -> {
             facade.applyTraining(selectedIntensity);
             facade.startWeek();
-            SceneManager.getInstance().switchTo("pre-match", facade);
+            SceneManager.getInstance().switchTo("vs-screen", facade);
         });
 
         center.getChildren().addAll(subtitle, intensityRow, statusLabel, squadCard, doneBtn);
