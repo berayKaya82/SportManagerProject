@@ -55,19 +55,19 @@ public class SceneManager {
                 root = new StandingsController(facade).getRoot();
                 break;
             case "pre-match":
-                root = buildPlaceholder("Pre-Match", facade);
+                root = new PreMatchController(facade).getRoot();
                 break;
             case "match":
-                root = buildPlaceholder("Match", facade);
+                root = new MatchController(facade).getRoot();
                 break;
             case "half-time":
-                root = buildPlaceholder("Half-Time", facade);
+                root = new HalfTimeController(facade).getRoot();
                 break;
             case "post-match":
-                root = buildPlaceholder("Post-Match ", facade);
+                root = new PostMatchController(facade).getRoot();
                 break;
             case "season-end":
-                root = buildPlaceholder("Season End ", facade);
+                root = new SeasonEndController(facade).getRoot();
                 break;
             case "save-load":
                 root = buildPlaceholder("Save / Load — coming soon", facade);
