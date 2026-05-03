@@ -4,13 +4,15 @@ import application.GameFacade;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainMenuController {
 
@@ -50,7 +52,29 @@ public class MainMenuController {
 
         newGameBtn.setOnAction(e ->
                 SceneManager.getInstance().switchTo("new-game", facade));
-        loadGameBtn.setOnAction(e -> {});
+        loadGameBtn.setOnAction(e -> {
+            List<String> slots = facade.getSaveSlotInfo();
+            List<String> existing = slots.stream()
+                    .filter(s -> !s.contains("Empty"))
+                    .collect(Collectors.toList());
+            if (existing.isEmpty()) {
+                new Alert(Alert.AlertType.INFORMATION, "No saved games found.").showAndWait();
+                return;
+            }
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(existing.get(0), existing);
+            dialog.setTitle("Load Game");
+            dialog.setHeaderText("Choose a save to load");
+            dialog.setContentText("Save:");
+            dialog.showAndWait().ifPresent(chosen -> {
+                int slotId = slots.indexOf(chosen) + 1;
+                try {
+                    facade.loadGame(slotId);
+                    SceneManager.getInstance().switchTo("dashboard", facade);
+                } catch (Exception ex) {
+                    new Alert(Alert.AlertType.ERROR, "Load failed: " + ex.getMessage()).showAndWait();
+                }
+            });
+        });
         exitBtn.setOnAction(e ->
                 javafx.application.Platform.exit());
 

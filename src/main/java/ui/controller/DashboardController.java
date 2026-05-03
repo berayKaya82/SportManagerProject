@@ -6,13 +6,14 @@ import domain.StandingEntry;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+
+import java.util.List;
 
 public class DashboardController {
 
@@ -34,26 +35,24 @@ public class DashboardController {
     // ── Top bar ─────────────────────────────────────────────────────────────
 
     private HBox buildTopBar() {
-        HBox bar = new HBox(20);
-        bar.setPadding(new Insets(16, 28, 16, 28));
-        bar.setAlignment(Pos.CENTER_LEFT);
+        HBox bar = new HBox();
         bar.setStyle(
-            "-fx-background-color: #111827;" +
-            "-fx-border-color: #1f2937;" +
-            "-fx-border-width: 0 0 1 0;"
+            "-fx-background-color: linear-gradient(to bottom, #052e16, #0a1a0f, #0a0e1a);" +
+            "-fx-padding: 20 28 16 28;"
         );
 
+        VBox titleBlock = new VBox(4);
         Label teamLabel = new Label(facade.getUserTeam().getName().toUpperCase());
-        teamLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        teamLabel.setFont(Font.font("Arial", FontWeight.BOLD, 26));
         teamLabel.setTextFill(Color.WHITE);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
         Label weekLabel = new Label(
             "WEEK " + facade.getCurrentWeekNumber() + " / " + facade.getTotalWeeks());
         weekLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-        weekLabel.setTextFill(Color.web("#6b7280"));
+        weekLabel.setTextFill(Color.web("#4ade80"));
+        titleBlock.getChildren().addAll(teamLabel, weekLabel);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label posLabel = new Label("  #" + facade.getUserTeamPosition() + "  ");
         posLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
@@ -64,7 +63,7 @@ public class DashboardController {
             "-fx-background-radius: 6;"
         );
 
-        bar.getChildren().addAll(teamLabel, spacer, weekLabel, posLabel);
+        bar.getChildren().addAll(titleBlock, spacer, posLabel);
         return bar;
     }
 
@@ -190,7 +189,22 @@ public class DashboardController {
         trainingBtn.setOnAction(e -> SceneManager.getInstance().switchTo("training",  facade));
         rosterBtn.setOnAction(e   -> SceneManager.getInstance().switchTo("roster",    facade));
         standBtn.setOnAction(e    -> SceneManager.getInstance().switchTo("standings", facade));
-        saveBtn.setOnAction(e     -> {});
+        saveBtn.setOnAction(e -> {
+            List<String> slots = facade.getSaveSlotInfo();
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(slots.get(0), slots);
+            dialog.setTitle("Save Game");
+            dialog.setHeaderText("Choose a save slot");
+            dialog.setContentText("Slot:");
+            dialog.showAndWait().ifPresent(chosen -> {
+                int slotId = slots.indexOf(chosen) + 1;
+                try {
+                    facade.saveGame(slotId);
+                    new Alert(Alert.AlertType.INFORMATION, "Game saved to Slot " + slotId + ".").showAndWait();
+                } catch (Exception ex) {
+                    new Alert(Alert.AlertType.ERROR, "Save failed: " + ex.getMessage()).showAndWait();
+                }
+            });
+        });
         mainMenuBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
 
         Region spacer = new Region();
