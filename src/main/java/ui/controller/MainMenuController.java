@@ -44,14 +44,13 @@ public class MainMenuController {
         titleBlock.getChildren().addAll(title, subtitle);
 
         // Buttons
-        Button newGameBtn  = buildMenuButton("New Game",         "btn-primary");
-        Button loadGameBtn = buildMenuButton("Load Saved Game",  "btn-secondary");
-        Button exitBtn     = buildMenuButton("Exit",             "btn-red");
+        Button newGameBtn  = buildMenuButton("New Game",        "btn-primary");
+        Button loadGameBtn = buildMenuButton("Load Saved Game", "btn-secondary");
+        Button exitBtn     = buildMenuButton("Exit",            "btn-red");
 
         newGameBtn.setOnAction(e ->
                 SceneManager.getInstance().switchTo("new-game", facade));
-        loadGameBtn.setOnAction(e ->
-                SceneManager.getInstance().switchTo("save-load", facade));
+        loadGameBtn.setOnAction(e -> {});
         exitBtn.setOnAction(e ->
                 javafx.application.Platform.exit());
 

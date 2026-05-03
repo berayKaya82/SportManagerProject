@@ -185,13 +185,18 @@ public class DashboardController {
         Button rosterBtn   = navBtn("Squad",     "nav-btn-blue");
         Button standBtn    = navBtn("Standings", "nav-btn-purple");
         Button saveBtn     = navBtn("Save Game", "nav-btn-gray");
+        Button mainMenuBtn = navBtn("Main Menu", "nav-btn-gray");
 
         trainingBtn.setOnAction(e -> SceneManager.getInstance().switchTo("training",  facade));
         rosterBtn.setOnAction(e   -> SceneManager.getInstance().switchTo("roster",    facade));
         standBtn.setOnAction(e    -> SceneManager.getInstance().switchTo("standings", facade));
-        saveBtn.setOnAction(e     -> SceneManager.getInstance().switchTo("save-load", facade));
+        saveBtn.setOnAction(e     -> {});
+        mainMenuBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
 
-        panel.getChildren().addAll(navTitle, trainingBtn, rosterBtn, standBtn, saveBtn);
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        panel.getChildren().addAll(navTitle, trainingBtn, rosterBtn, standBtn, saveBtn, spacer, mainMenuBtn);
         return panel;
     }
 

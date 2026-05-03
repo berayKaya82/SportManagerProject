@@ -72,9 +72,6 @@ public class SceneManager {
             case "season-end":
                 root = new SeasonEndController(facade).getRoot();
                 break;
-            case "save-load":
-                root = buildPlaceholder("Save / Load — coming soon", facade);
-                break;
             default:
                 throw new IllegalArgumentException("Unknown screen: " + screenName);
         }
@@ -101,9 +98,10 @@ public class SceneManager {
         Label label = new Label(message);
         label.getStyleClass().add("text-gray");
 
-        Button back = new Button("Back to Dashboard");
+        boolean gameStarted = facade.getUserTeam() != null;
+        Button back = new Button(gameStarted ? "Back to Dashboard" : "Back to Main Menu");
         back.getStyleClass().addAll("btn", "btn-primary");
-        back.setOnAction(e -> switchTo("dashboard", facade));
+        back.setOnAction(e -> switchTo(gameStarted ? "dashboard" : "main-menu", facade));
 
         root.getChildren().addAll(label, back);
         return root;

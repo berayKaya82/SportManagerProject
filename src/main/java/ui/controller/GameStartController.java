@@ -22,49 +22,58 @@ public class GameStartController {
     }
 
     public Parent getRoot() {
-        StackPane root = new StackPane();
+        BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #0a0e1a;");
 
-        VBox card = new VBox(0);
-        card.setMaxWidth(420);
-        card.setStyle(
-            "-fx-background-color: #111827;" +
-            "-fx-background-radius: 12;" +
-            "-fx-border-color: #1f2937;" +
-            "-fx-border-width: 1;" +
-            "-fx-border-radius: 12;"
-        );
+        root.setTop(buildHeader());
+        root.setCenter(buildForm());
 
-        // Header
-        VBox header = new VBox(4);
-        header.setPadding(new Insets(24, 28, 20, 28));
+        return root;
+    }
+
+    // ── Header bar (same pattern as Training / Roster) ───────────────────────
+
+    private HBox buildHeader() {
+        HBox header = new HBox();
+        header.setPadding(new Insets(16, 28, 16, 28));
+        header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle(
-            "-fx-background-color: linear-gradient(to bottom, #052e16, #111827);" +
-            "-fx-background-radius: 12 12 0 0;"
+            "-fx-background-color: #111827;" +
+            "-fx-border-color: #1f2937;" +
+            "-fx-border-width: 0 0 1 0;"
         );
 
+        VBox titleBlock = new VBox(2);
         Label title = new Label("NEW GAME");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         title.setTextFill(Color.WHITE);
 
         Label subtitle = new Label("Set up your team and get started");
         subtitle.setFont(Font.font("Arial", 13));
         subtitle.setTextFill(Color.web("#6b7280"));
+        titleBlock.getChildren().addAll(title, subtitle);
 
-        header.getChildren().addAll(title, subtitle);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Form body
-        VBox form = new VBox(16);
-        form.setPadding(new Insets(24, 28, 28, 28));
+        Button backBtn = new Button("← Main Menu");
+        backBtn.getStyleClass().addAll("btn", "btn-secondary");
+        backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
 
+        header.getChildren().addAll(titleBlock, spacer, backBtn);
+        return header;
+    }
+
+    // ── Two-column form filling the whole center ─────────────────────────────
+
+    private HBox buildForm() {
+        // Fields
         TextField managerField = new TextField();
         managerField.setPromptText("e.g. Alex Ferguson");
-        managerField.getStyleClass().add("text-field");
         managerField.setMaxWidth(Double.MAX_VALUE);
 
         TextField teamField = new TextField();
         teamField.setPromptText("e.g. Manchester United");
-        teamField.getStyleClass().add("text-field");
         teamField.setMaxWidth(Double.MAX_VALUE);
 
         ComboBox<String> sportBox = new ComboBox<>();
@@ -77,25 +86,18 @@ public class GameStartController {
         genderBox.setValue(Gender.MALE);
         genderBox.setMaxWidth(Double.MAX_VALUE);
 
-        form.getChildren().addAll(
+        // Left column — identity fields
+        VBox leftCard = card();
+        leftCard.getChildren().addAll(
+                sectionLabel("MANAGER DETAILS"),
                 formRow("Manager Name", managerField),
-                formRow("Team Name",    teamField),
-                formRow("Sport",        sportBox),
-                formRow("League Gender", genderBox)
+                formRow("Team Name",    teamField)
         );
 
-        // Buttons
-        HBox btnRow = new HBox(12);
-        btnRow.setPadding(new Insets(4, 28, 24, 28));
-        btnRow.setAlignment(Pos.CENTER_RIGHT);
-
-        Button backBtn = new Button("← Back");
-        backBtn.getStyleClass().addAll("btn", "btn-secondary");
-        backBtn.setOnAction(e ->
-                SceneManager.getInstance().switchTo("main-menu", facade));
-
+        // Right column — match settings + start button
         Button startBtn = new Button("Start Game →");
         startBtn.getStyleClass().addAll("btn", "btn-primary");
+        startBtn.setMaxWidth(Double.MAX_VALUE);
         startBtn.setOnAction(e -> {
             String managerName = managerField.getText().trim();
             String teamName    = teamField.getText().trim();
@@ -114,12 +116,44 @@ public class GameStartController {
             SceneManager.getInstance().switchTo("dashboard", facade);
         });
 
-        btnRow.getChildren().addAll(backBtn, startBtn);
+        VBox rightCard = card();
+        rightCard.getChildren().addAll(
+                sectionLabel("MATCH SETTINGS"),
+                formRow("Sport",         sportBox),
+                formRow("League Gender", genderBox),
+                new Region() {{ VBox.setVgrow(this, Priority.ALWAYS); }},
+                startBtn
+        );
 
-        card.getChildren().addAll(header, form, btnRow);
-        StackPane.setAlignment(card, Pos.CENTER);
-        root.getChildren().add(card);
-        return root;
+        // Outer row — two cards side by side, full width
+        HBox row = new HBox(20);
+        row.setPadding(new Insets(28));
+        HBox.setHgrow(leftCard,  Priority.ALWAYS);
+        HBox.setHgrow(rightCard, Priority.ALWAYS);
+        row.getChildren().addAll(leftCard, rightCard);
+        return row;
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private VBox card() {
+        VBox card = new VBox(16);
+        card.setPadding(new Insets(24));
+        card.setStyle(
+            "-fx-background-color: #111827;" +
+            "-fx-background-radius: 10;" +
+            "-fx-border-color: #1f2937;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 10;"
+        );
+        return card;
+    }
+
+    private Label sectionLabel(String text) {
+        Label lbl = new Label(text);
+        lbl.getStyleClass().add("section-header-green");
+        lbl.setPadding(new Insets(0, 0, 4, 0));
+        return lbl;
     }
 
     private VBox formRow(String labelText, Control field) {
