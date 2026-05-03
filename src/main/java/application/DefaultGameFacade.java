@@ -24,7 +24,7 @@ public class DefaultGameFacade implements GameFacade {
     private final PlayerManager playerManager;
     private final PlayerGenerator playerGenerator;
     private final TeamGenerator teamGenerator;
-    private final LeagueManager leagueManager;
+    private LeagueManager leagueManager;
     private final TrainingManager trainingManager;
 
     // Managers initialized after game setup
@@ -349,6 +349,7 @@ public class DefaultGameFacade implements GameFacade {
 
         Gender gender = Gender.valueOf(state.getGenderName());
 
+        this.leagueManager = new LeagueManager(teamGenerator, playerGenerator);
         League league = leagueManager.createLeagueWithUserTeam(
                 state.getTeamName(), gender, loadedSport);
 
@@ -370,7 +371,7 @@ public class DefaultGameFacade implements GameFacade {
 
         if (state.getTacticStyle() != null) {
             PlayStyle style = PlayStyle.valueOf(state.getTacticStyle());
-            userTeam.setTactic(loadedSport.getDefaultTactic());
+            userTeam.setTactic(() -> style);
         }
     }
 
