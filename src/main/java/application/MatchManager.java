@@ -80,8 +80,8 @@ public class MatchManager {
     public MatchResult playUserPeriod(Match match, int periodNumber, MatchResult currentResult) {
         if (match == null)
             throw new IllegalArgumentException("Match cannot be null");
-        if (match.getStatus() != MatchStatus.IN_PROGRESS)
-            throw new IllegalStateException("Match must be IN_PROGRESS to play a period");
+        if (match.getStatus() != MatchStatus.IN_PROGRESS && match.getStatus() != MatchStatus.SCHEDULED)
+            throw new IllegalStateException("Match must be IN_PROGRESS or SCHEDULED to play a period");
         if (periodNumber < 1 || periodNumber > matchSimulator.getNumberOfPeriods())
             throw new IllegalArgumentException("Invalid period number: " + periodNumber);
 

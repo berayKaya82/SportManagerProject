@@ -51,7 +51,9 @@ public class FootballMatchSimulator implements MatchSimulator {
 
         MatchResult finalResult = new MatchResult(totalHome, totalAway);
 
-        match.startMatch();
+        if (match.getStatus() == domain.MatchStatus.SCHEDULED) {
+            match.startMatch();
+        }
         if (periodNumber == FOOTBALL_PERIODS) {
             if (!matchFlow.allowsDraw() && totalHome == totalAway) {
                 finalResult = resolveDraw(finalResult);

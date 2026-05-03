@@ -93,4 +93,9 @@ public interface GameFacade {
     void setTactic(ITactic tactic);
     // Sets the team's coach
     void setCoach(Coach coach);
+
+    // --- Save / Load ---
+    void saveGame(int slotId);
+    void loadGame(int slotId);
+    List<String> getSaveSlotInfo();
 }
