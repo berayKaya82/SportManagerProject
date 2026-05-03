@@ -19,11 +19,6 @@ public class HandballTactic implements ITactic {
     }
 
     @Override
-    public sport.ITactic getDefaultTactic(){
-        return new HandballTactic(PlayStyle.BALANCED);
-    }
-
-    @Override
     public String toString(){
         return "HandballTactic{" + "playStyle=" + playStyle + "}";
 

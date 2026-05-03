@@ -51,6 +51,9 @@ public class HandballMatchSimulator implements MatchSimulator {
 
         MatchResult finalResult = new MatchResult(totalHome, totalAway);
 
+        if (match.getStatus() == domain.MatchStatus.SCHEDULED) {
+            match.startMatch();
+        }
         if (periodNumber == HANDBALL_PERIODS) {
             if (!matchFlow.allowsDraw() && totalHome == totalAway) {
                 finalResult = resolveDraw(finalResult);

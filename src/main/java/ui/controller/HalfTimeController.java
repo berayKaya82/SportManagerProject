@@ -273,7 +273,6 @@ public class HalfTimeController {
             PlayStyle style = PlayStyle.valueOf(selected.getText());
             ITactic tactic = new ITactic() {
                 @Override public PlayStyle getPlayStyle() { return style; }
-                @Override public ITactic getDefaultTactic() { return null; }
             };
             facade.setTactic(tactic);
         }

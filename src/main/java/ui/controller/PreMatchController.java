@@ -207,7 +207,6 @@ public class PreMatchController {
         PlayStyle selectedStyle = PlayStyle.valueOf(tacticComboBox.getValue());
         ITactic tactic = new ITactic() {
             @Override public PlayStyle getPlayStyle() { return selectedStyle; }
-            @Override public ITactic getDefaultTactic() { return null; }
         };
         facade.setTactic(tactic);
         facade.playPeriod(1);

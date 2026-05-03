@@ -153,7 +153,6 @@ public class RosterController {
             PlayStyle selected = tacticBox.getValue();
             facade.setTactic(new ITactic() {
                 @Override public PlayStyle getPlayStyle() { return selected; }
-                @Override public ITactic getDefaultTactic() { return this; }
             });
         });
 

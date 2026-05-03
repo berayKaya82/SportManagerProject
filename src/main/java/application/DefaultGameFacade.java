@@ -1,9 +1,14 @@
 package application;
 
 import domain.*;
+import football.FootballSport;
+import handball.HandballSport;
 import sport.ISport;
 import sport.ITactic;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class DefaultGameFacade implements GameFacade {
@@ -252,15 +257,173 @@ public class DefaultGameFacade implements GameFacade {
         teamManager.setCoach(coach);
     }
 
+    // --- Save / Load ---
+
+    @Override
+    public void saveGame(int slotId) {
+        ensureGameStarted();
+        GameState state = buildGameState();
+        SaveLoadManager saveLoadManager = new SaveLoadManager();
+        try {
+            saveLoadManager.saveGame(state, slotId);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save game: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void loadGame(int slotId) {
+        SaveLoadManager saveLoadManager = new SaveLoadManager();
+        GameState state;
+        try {
+            state = saveLoadManager.loadGame(slotId);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load game: " + e.getMessage(), e);
+        }
+        restoreFromGameState(state);
+    }
+
+    @Override
+    public List<String> getSaveSlotInfo() {
+        return new SaveLoadManager().getSaveSlotInfo();
+    }
+
+    private GameState buildGameState() {
+        GameState state = new GameState();
+
+        state.setManagerName(managerProfile.getManagerName());
+        state.setReputation(managerProfile.getReputation());
+        state.setSeasonNumber(managerProfile.getCurrentSeason());
+
+        state.setSportName(sport.getSportName());
+        state.setGenderName(userTeam.getGender().name());
+        state.setTeamName(userTeam.getName());
+        state.setCoachRelationship(userTeam.getCoachRelationship());
+
+        if (userTeam.getCoach() != null) {
+            Coach c = userTeam.getCoach();
+            state.setCoachName(c.getName());
+            state.setCoachLevel(c.getCoachLevel());
+            state.setCoachRequiredSeason(c.getRequiredSeason());
+            state.setCoachRequiredReputation(c.getRequiredReputation());
+        }
+
+        if (userTeam.getTactic() != null) {
+            state.setTacticStyle(userTeam.getTactic().getPlayStyle().name());
+        }
+
+        state.setStarters(toPlayerDataList(userTeam.getStartingPlayers()));
+        state.setSubstitutes(toPlayerDataList(userTeam.getSubstitutes()));
+
+        state.setCurrentWeek(seasonCycleManager.getCurrentWeekNumber());
+        state.setTotalWeeks(seasonCycleManager.getTotalWeeks());
+
+        List<GameState.StandingData> standingDataList = new ArrayList<>();
+        for (StandingEntry entry : seasonCycleManager.getCurrentStandings()) {
+            GameState.StandingData sd = new GameState.StandingData();
+            sd.teamName = entry.getTeam().getName();
+            sd.points = entry.getPoints();
+            sd.played = entry.getPlayed();
+            sd.won = entry.getWins();
+            sd.drawn = entry.getDraws();
+            sd.lost = entry.getLosses();
+            sd.goalsFor = entry.getGoalsFor();
+            sd.goalsAgainst = entry.getGoalsAgainst();
+            standingDataList.add(sd);
+        }
+        state.setStandings(standingDataList);
+
+        state.setSaveDate(LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+
+        return state;
+    }
+
+    private void restoreFromGameState(GameState state) {
+        this.managerProfile = new ManagerProfile(
+                state.getManagerName(), state.getReputation(), state.getSeasonNumber());
+
+        ISport loadedSport = "Handball".equalsIgnoreCase(state.getSportName())
+                ? new HandballSport() : new FootballSport();
+        this.sport = loadedSport;
+
+        Gender gender = Gender.valueOf(state.getGenderName());
+
+        League league = leagueManager.createLeagueWithUserTeam(
+                state.getTeamName(), gender, loadedSport);
+
+        this.userTeam = league.getTeams().get(0);
+        this.teamManager = new TeamManager(userTeam, playerManager);
+        this.matchManager = new MatchManager(loadedSport.getMatchSimulator(), new Random());
+        this.seasonCycleManager = new SeasonCycleManager(
+                league.getName(), loadedSport, gender, league.getTeams());
+        seasonCycleManager.startNewSeason();
+
+        userTeam.getStartingPlayers().forEach(p -> {});
+        restorePlayers(userTeam, state.getStarters(), state.getSubstitutes());
+
+        if (state.getCoachName() != null) {
+            userTeam.setCoach(new Coach(state.getCoachName(), state.getCoachLevel(),
+                    state.getCoachRequiredSeason(), state.getCoachRequiredReputation()));
+        }
+        userTeam.setCoachRelationship(state.getCoachRelationship());
+
+        if (state.getTacticStyle() != null) {
+            PlayStyle style = PlayStyle.valueOf(state.getTacticStyle());
+            userTeam.setTactic(loadedSport.getDefaultTactic());
+        }
+    }
+
+    private void restorePlayers(Team team, List<GameState.PlayerData> starterData,
+                                List<GameState.PlayerData> subData) {
+        List<Player> currentStarters = new ArrayList<>(team.getStartingPlayers());
+        List<Player> currentSubs = new ArrayList<>(team.getSubstitutes());
+
+        for (int i = 0; i < Math.min(starterData.size(), currentStarters.size()); i++) {
+            applyPlayerData(currentStarters.get(i), starterData.get(i));
+        }
+        for (int i = 0; i < Math.min(subData.size(), currentSubs.size()); i++) {
+            applyPlayerData(currentSubs.get(i), subData.get(i));
+        }
+    }
+
+    private void applyPlayerData(Player player, GameState.PlayerData data) {
+        player.setName(data.name);
+        player.setAge(data.age);
+        player.setEnergy(Math.max(0, Math.min(100, data.energy)));
+        player.setCondition(Math.max(0, Math.min(100, data.condition)));
+        player.setInjuryRisk(Math.max(0, Math.min(100, data.injuryRisk)));
+        player.setInjuryStatus(InjuryStatus.valueOf(data.injuryStatus));
+        if (data.injuredGamesRemaining > 0) {
+            player.injure(data.injuredGamesRemaining);
+        }
+    }
+
+    private List<GameState.PlayerData> toPlayerDataList(List<Player> players) {
+        List<GameState.PlayerData> list = new ArrayList<>();
+        for (Player p : players) {
+            GameState.PlayerData pd = new GameState.PlayerData();
+            pd.id = p.getId();
+            pd.name = p.getName();
+            pd.age = p.getAge();
+            pd.genderName = p.getGender().name();
+            pd.energy = p.getEnergy();
+            pd.condition = p.getCondition();
+            pd.injuryRisk = p.getInjuryRisk();
+            pd.injuryStatus = p.getInjuryStatus().name();
+            pd.injuredGamesRemaining = p.getInjuredGamesRemaining();
+            list.add(pd);
+        }
+        return list;
+    }
+
     // --- Guards ---
 
-    // Ensures game is initialized before performing operations
     private void ensureGameStarted() {
         if (userTeam == null)
             throw new IllegalStateException("Game not started. Call startNewGame() first.");
     }
 
-    // Ensures a user match is available in the current week
     private void ensureUserMatchExists() {
         if (currentUserMatch == null)
             throw new IllegalStateException("No active user match. Call startWeek() first.");
