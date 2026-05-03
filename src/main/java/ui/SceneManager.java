@@ -54,18 +54,40 @@ public class SceneManager {
             case "standings":
                 root = new StandingsController(facade).getRoot();
                 break;
+            case "vs-screen":
+                root = new VsScreenController(facade).getRoot();
+                break;
+            case "pre-match":
+                root = new PreMatchController(facade).getRoot();
+                break;
+            case "match":
+                root = new MatchController(facade).getRoot();
+                break;
+            case "half-time":
+                root = new HalfTimeController(facade).getRoot();
+                break;
+            case "post-match":
+                root = new PostMatchController(facade).getRoot();
+                break;
+            case "season-end":
+                root = new SeasonEndController(facade).getRoot();
+                break;
+            case "save-load":
+                root = buildPlaceholder("Save / Load — coming soon", facade);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown screen: " + screenName);
         }
 
-        Scene scene = new Scene(root, 960, 660);
-
-        //CSS
-        scene.getStylesheets().add(
-                getClass().getResource("/style.css").toExternalForm()
-        );
-
-        stage.setScene(scene);
+        if (stage.getScene() == null) {
+            Scene scene = new Scene(root, 960, 660);
+            scene.getStylesheets().add(
+                    getClass().getResource("/style.css").toExternalForm()
+            );
+            stage.setScene(scene);
+        } else {
+            stage.getScene().setRoot(root);
+        }
         stage.show();
     }
 

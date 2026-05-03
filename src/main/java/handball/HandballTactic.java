@@ -17,6 +17,7 @@ public class HandballTactic implements ITactic {
     public PlayStyle getPlayStyle(){
         return playStyle;
     }
+
     @Override
     public String toString(){
         return "HandballTactic{" + "playStyle=" + playStyle + "}";
