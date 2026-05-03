@@ -3,15 +3,18 @@ package ui.controller;
 import application.GameFacade;
 import domain.Match;
 import javafx.animation.*;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.effect.GaussianBlur;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.scene.text.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import ui.SceneManager;
 
@@ -24,9 +27,7 @@ public class VsScreenController {
     }
 
     public Parent getRoot() {
-
         Match match = facade.getUserMatch();
-
         String home = match.getHomeTeam().getName().toUpperCase();
         String away = match.getAwayTeam().getName().toUpperCase();
 
@@ -37,123 +38,77 @@ public class VsScreenController {
                 new Image(getClass().getResource("/images/vs.jpg").toExternalForm())
         );
         bg.setPreserveRatio(false);
+        bg.setSmooth(true);
         bg.fitWidthProperty().bind(root.widthProperty());
         bg.fitHeightProperty().bind(root.heightProperty());
 
-        // ───────── CENTER GLOW ─────────
-        Region glow = new Region();
-        glow.setPrefWidth(120);
-        glow.setMaxHeight(Double.MAX_VALUE);
-
-        glow.setBackground(new Background(new BackgroundFill(
-                new LinearGradient(
-                        0.5, 0, 0.5, 1, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.TRANSPARENT),
-                        new Stop(0.5, Color.web("#ffffff22")),
-                        new Stop(1, Color.TRANSPARENT)
-                ), null, null
-        )));
-
-        glow.setEffect(new GaussianBlur(25));
-        glow.setOpacity(0.6);
-
-        // ───────── TEAM TEXT ─────────
-        Text homeText = new Text(home);
-        homeText.setFill(Color.WHITE);
-        homeText.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, 42));
-        homeText.setTextAlignment(TextAlignment.RIGHT);
-
-        Text awayText = new Text(away);
-        awayText.setFill(Color.WHITE);
-        awayText.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, 42));
-        awayText.setTextAlignment(TextAlignment.LEFT);
-
-        // Limit each side to 40% of screen width, leaving room for the VS graphic in the center
-        homeText.wrappingWidthProperty().bind(root.widthProperty().multiply(0.40));
-        awayText.wrappingWidthProperty().bind(root.widthProperty().multiply(0.40));
-
-        // Home box: align content to the right edge
-        StackPane homeBox = new StackPane(homeText);
-        homeBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox.setHgrow(homeBox, Priority.ALWAYS);
-
-        // Away box: align content to the left edge
-        StackPane awayBox = new StackPane(awayText);
-        awayBox.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(awayBox, Priority.ALWAYS);
-
-        // Center gap matches the width of the VS graphic
-        HBox row = new HBox(homeBox, awayBox);
-        row.setAlignment(Pos.CENTER);
-        row.setSpacing(120);
-        row.setMouseTransparent(true);
+        // ───────── WINGS ─────────
+        StackPane leftWing  = createWing(home, true,  Color.web("#003366"));
+        StackPane rightWing = createWing(away, false, Color.web("#8E1616"));
+        leftWing.setOpacity(0);
+        rightWing.setOpacity(0);
 
         // ───────── BUTTON ─────────
         Button kick = new Button("KICK OFF →");
-        kick.getStyleClass().addAll("btn-primary");
-
-        kick.setOnAction(e ->
-                SceneManager.getInstance().switchTo("pre-match", facade)
-        );
-
+        kick.getStyleClass().add("btn-primary");
+        kick.setOpacity(0);
+        kick.setOnAction(e -> SceneManager.getInstance().switchTo("pre-match", facade));
         StackPane.setAlignment(kick, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(kick, new javafx.geometry.Insets(0,0,50,0));
+        StackPane.setMargin(kick, new Insets(0, 0, 50, 0));
 
-        root.getChildren().addAll(bg, glow, row, kick);
-
-        // ───────── RESPONSIVE FONT ─────────
-        root.widthProperty().addListener((obs, oldV, newV) -> {
-            double size = Math.min(42, newV.doubleValue() / 22);
-            homeText.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, size));
-            awayText.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, size));
-        });
+        root.getChildren().addAll(bg, leftWing, rightWing, kick);
 
         // ───────── ANIMATION ─────────
+        TranslateTransition leftMove = new TranslateTransition(Duration.millis(650), leftWing);
+        leftMove.setToX(-280);
+        leftMove.setInterpolator(Interpolator.SPLINE(0.1, 0.9, 0.2, 1));
+
+        TranslateTransition rightMove = new TranslateTransition(Duration.millis(650), rightWing);
+        rightMove.setToX(280);
+        rightMove.setInterpolator(Interpolator.SPLINE(0.1, 0.9, 0.2, 1));
+
+        FadeTransition leftFade  = new FadeTransition(Duration.millis(350), leftWing);
+        leftFade.setToValue(1);
+        FadeTransition rightFade = new FadeTransition(Duration.millis(350), rightWing);
+        rightFade.setToValue(1);
+
+        ParallelTransition wingsIn = new ParallelTransition(leftMove, rightMove, leftFade, rightFade);
+
+        FadeTransition kickFade = new FadeTransition(Duration.millis(450), kick);
+        kickFade.setToValue(1);
+
+        SequentialTransition full = new SequentialTransition(wingsIn, kickFade);
+
+        final boolean[] played = {false};
         root.layoutBoundsProperty().addListener((obs, oldVal, bounds) -> {
-
-            double width = bounds.getWidth();
-            double startOffset = width * 0.15; // proportional to screen width
-
-            homeBox.setTranslateX(startOffset);
-            awayBox.setTranslateX(-startOffset);
-
-            homeBox.setOpacity(0);
-            awayBox.setOpacity(0);
-
-            TranslateTransition moveHome = new TranslateTransition(Duration.millis(700), homeBox);
-            moveHome.setFromX(startOffset);
-            moveHome.setToX(0);
-
-            TranslateTransition moveAway = new TranslateTransition(Duration.millis(700), awayBox);
-            moveAway.setFromX(-startOffset);
-            moveAway.setToX(0);
-
-            moveHome.setInterpolator(Interpolator.SPLINE(0.2, 0.8, 0.2, 1));
-            moveAway.setInterpolator(Interpolator.SPLINE(0.2, 0.8, 0.2, 1));
-
-            FadeTransition fadeL = new FadeTransition(Duration.millis(500), homeBox);
-            fadeL.setFromValue(0);
-            fadeL.setToValue(1);
-
-            FadeTransition fadeR = new FadeTransition(Duration.millis(500), awayBox);
-            fadeR.setFromValue(0);
-            fadeR.setToValue(1);
-
-            // light sweep
-            TranslateTransition light = new TranslateTransition(Duration.millis(600), glow);
-            light.setFromX(-60);
-            light.setToX(60);
-            light.setAutoReverse(true);
-            light.setCycleCount(2);
-
-            new ParallelTransition(
-                    moveHome, moveAway,
-                    fadeL, fadeR,
-                    light
-            ).play();
+            if (!played[0] && bounds.getWidth() > 0) {
+                played[0] = true;
+                full.play();
+            }
         });
 
         return root;
     }
-}
 
+    private StackPane createWing(String name, boolean isLeft, Color color) {
+        StackPane wing = new StackPane();
+
+        Polygon poly = new Polygon();
+        double w = 300, h = 75, s = 28;
+        if (isLeft)
+            poly.getPoints().addAll(0.0, 0.0, w, s, w, h - s, 0.0, h);
+        else
+            poly.getPoints().addAll(0.0, s, w, 0.0, w, h, 0.0, h - s);
+
+        poly.setFill(color);
+        poly.setStroke(Color.WHITE);
+
+        Label lbl = new Label(name);
+        lbl.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        lbl.setTextFill(Color.WHITE);
+
+        wing.getChildren().addAll(poly, lbl);
+        wing.setMaxSize(w, h);
+        return wing;
+    }
+}
