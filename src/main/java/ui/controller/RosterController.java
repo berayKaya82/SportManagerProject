@@ -36,18 +36,19 @@ public class RosterController {
 
     private HBox buildTopBar() {
         HBox bar = new HBox();
-        bar.setPadding(new Insets(16, 28, 16, 28));
-        bar.setAlignment(Pos.CENTER_LEFT);
         bar.setStyle(
-            "-fx-background-color: #111827;" +
-            "-fx-border-color: #1f2937;" +
-            "-fx-border-width: 0 0 1 0;"
+            "-fx-background-color: linear-gradient(to bottom, #052e16, #0a1a0f, #0a0e1a);" +
+            "-fx-padding: 20 28 16 28;"
         );
 
-        Label title = new Label(
-            "SQUAD MANAGEMENT — " + facade.getUserTeam().getName().toUpperCase());
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        VBox titleBlock = new VBox(4);
+        Label title = new Label("SQUAD MANAGEMENT");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 26));
         title.setTextFill(Color.WHITE);
+        Label subtitle = new Label(facade.getUserTeam().getName().toUpperCase());
+        subtitle.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        subtitle.setTextFill(Color.web("#4ade80"));
+        titleBlock.getChildren().addAll(title, subtitle);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -56,7 +57,7 @@ public class RosterController {
         backBtn.getStyleClass().addAll("btn", "btn-secondary");
         backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("dashboard", facade));
 
-        bar.getChildren().addAll(title, spacer, backBtn);
+        bar.getChildren().addAll(titleBlock, spacer, backBtn);
         return bar;
     }
 
