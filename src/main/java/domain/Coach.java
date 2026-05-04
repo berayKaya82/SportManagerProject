@@ -56,9 +56,9 @@ public class Coach {
      * @return the combined training multiplier
      */
     public double getTrainingMultiplier(double coachRelationship) {
-        double levelBonus = 1.1 + (coachLevel - 1) * 0.1;        // Level 1=1.1x, Level 2=1.2x ...
-        double relationBonus = 0.5 + (coachRelationship / 100.0); // 0=0.5x, 50=1.0x, 100=1.5x
-        return levelBonus * relationBonus;
+        double levelBonus = 1.1 + (coachLevel - 1) * 0.1;
+        double relationBonus = 0.5 + (coachRelationship / 100.0);
+        return Math.max(1.0, levelBonus * relationBonus);
     }
     
     /**
@@ -72,9 +72,9 @@ public class Coach {
      */
     public double getMatchEnergyReduction(double coachRelationship) {
         double base = 0.05;
-        double levelFactor = (coachLevel - 1) * 0.1;
-        double relationFactor = coachRelationship / 200.0;
-        return Math.min(0.50, base + levelFactor + relationFactor);
+        double levelFactor = (coachLevel - 1) * 0.06;
+        double relationFactor = coachRelationship / 250.0;
+        return Math.min(0.40, base + levelFactor + relationFactor);
     }
 
     /**
@@ -85,7 +85,7 @@ public class Coach {
      * @return 0 or 1 as match score bonus
      */
     public int getMatchBonus(double coachRelationship) {
-        double score = (coachLevel * 0.3) + (coachRelationship / 100.0) * 0.7;
+        double score = (coachLevel * 0.2) + (coachRelationship / 100.0) * 0.5;
         return score >= 1.0 ? 1 : 0;
     }
 

@@ -100,6 +100,25 @@ public class TeamGenerator {
         return "Team_" + random.nextInt(1000);
     }
 
+    public Team createTeamWithName(int id, String name, Gender gender, ISport sport) {
+        if (id <= 0) throw new IllegalArgumentException("Team ID must be positive");
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Team name cannot be empty");
+        if (gender == null) throw new IllegalArgumentException("Gender cannot be null");
+        if (sport == null) throw new IllegalArgumentException("Sport cannot be null");
+
+        Team team = new Team(id, name, gender);
+        int startingCount = sport.getRosterRule().getStartingPlayerCount();
+        List<Player> starters = playerGenerator.generatePlayersByGender(startingCount, gender);
+        for (Player p : starters) {
+            team.addStartingPlayer(p);
+        }
+        team.setCoach(generateCoach());
+        team.setTactic(generateDefaultTactic());
+        team.setCoachRelationship(randomBetween(45, 85));
+        usedNames.add(name);
+        return team;
+    }
+
     /**
      * Generates a random coach.
      * Most coaches are mid-level, few are high-level.

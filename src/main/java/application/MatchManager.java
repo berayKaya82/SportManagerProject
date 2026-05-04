@@ -25,7 +25,7 @@ import java.util.Random;
 public class MatchManager {
     private static final int MATCH_ENERGY_LOSS = 15;
     private static final int SUB_ENERGY_LOSS = 5;
-    private static final int INJURY_THRESHOLD = 50;
+    private static final int INJURY_THRESHOLD = 25;
     private static final int MAX_INJURY_GAMES = 5;
 
     private final MatchSimulator matchSimulator;
@@ -108,11 +108,12 @@ public class MatchManager {
 
         applyConditionChange(team, match, result);
         applyPostMatchEnergyLoss(team);
+        applyMatchInjuryRiskIncrease(team);
         applyPostMatchInjuries(team);
         applyInjuryRecovery(team);
     }
 
-    private static final int BASE_CONDITION_WEAR = -3;
+    private static final int BASE_CONDITION_WEAR = -5;
     private static final int WIN_CONDITION_BONUS = 3;
     private static final int DRAW_CONDITION_PENALTY = -2;
     private static final int LOSS_CONDITION_PENALTY = -8;
@@ -145,11 +146,6 @@ public class MatchManager {
             int newCondition = Math.max(0, Math.min(100, player.getCondition() + conditionDelta));
             player.setCondition(newCondition);
         }
-        for (Player player : team.getSubstitutes()) {
-            if (player.getInjuryStatus() == InjuryStatus.INJURED) continue;
-            int newCondition = Math.max(0, Math.min(100, player.getCondition() + conditionDelta));
-            player.setCondition(newCondition);
-        }
     }
 
     /**
@@ -169,6 +165,14 @@ public class MatchManager {
         for (Player player : team.getSubstitutes()) {
             int adjustedLoss = (int) Math.round(SUB_ENERGY_LOSS * (1.0 - reduction));
             applyEnergyLoss(player, adjustedLoss);
+        }
+    }
+
+    private void applyMatchInjuryRiskIncrease(Team team) {
+        for (Player player : team.getStartingPlayers()) {
+            if (player.getInjuryStatus() == InjuryStatus.INJURED) continue;
+            int increase = 3 + random.nextInt(4); // +3 to +6 per match
+            player.setInjuryRisk(Math.min(100, player.getInjuryRisk() + increase));
         }
     }
 

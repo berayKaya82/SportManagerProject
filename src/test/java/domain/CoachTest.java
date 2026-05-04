@@ -29,7 +29,7 @@ class CoachTest {
     void matchEnergyReductionCappedAtMax() {
         Coach highLevel = new Coach("Pro", 5, 1, 0);
         double reduction = highLevel.getMatchEnergyReduction(100);
-        assertTrue(reduction <= 0.50, "Reduction should not exceed 0.50");
+        assertTrue(reduction <= 0.40, "Reduction should not exceed 0.40");
         assertTrue(reduction > 0, "High-level coach should provide some reduction");
     }
 

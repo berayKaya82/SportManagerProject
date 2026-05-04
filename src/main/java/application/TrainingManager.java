@@ -1,6 +1,10 @@
 package application;
 import domain.*;
+import java.util.Random;
+
 public class TrainingManager {
+
+    private final Random random = new Random();
     /**
      * Applies a training session to all players in the given team.
      *
@@ -31,19 +35,21 @@ public class TrainingManager {
         int adjustedEnergyLoss    = (int) Math.round(energyLoss / multiplier);
         int adjustedConditionGain = (int) Math.round(conditionGain * multiplier);
 
+        int subEnergyLoss = (int) Math.round(adjustedEnergyLoss * 0.5);
+
         for (Player player : team.getStartingPlayers()) {
             applyToPlayer(player, adjustedEnergyLoss, adjustedConditionGain, injuryRiskDelta);
         }
         for (Player player : team.getSubstitutes()) {
-            applyToPlayer(player, adjustedEnergyLoss, adjustedConditionGain, injuryRiskDelta);
+            applyToPlayer(player, subEnergyLoss, adjustedConditionGain, injuryRiskDelta);
         }
     }
     private void applyToPlayer(Player player, int energyLoss, int conditionGain, int injuryRiskDelta) {
-        // Skip injured players — they rest, not train
         if (player.getInjuryStatus() == InjuryStatus.INJURED) return;
 
-        player.setEnergy(clamp(player.getEnergy() - energyLoss));
-        player.setCondition(clamp(player.getCondition() + conditionGain));
+        int variance = random.nextInt(5) - 2; // -2 to +2
+        player.setEnergy(clamp(player.getEnergy() - energyLoss + variance));
+        player.setCondition(clamp(player.getCondition() + conditionGain + variance));
         player.setInjuryRisk(clamp(player.getInjuryRisk() + injuryRiskDelta));
     }
     /**
@@ -68,10 +74,14 @@ public class TrainingManager {
         int recovery;
         if (player.getInjuryStatus() == InjuryStatus.INJURED) {
             recovery = 10;
+            player.setInjuryRisk(clamp(player.getInjuryRisk() - 8));
         } else {
-            recovery = isSub ? 25 : 15;
+            recovery = isSub ? 25 : 20;
+            int riskReduction = isSub ? 5 : 3;
+            player.setInjuryRisk(clamp(player.getInjuryRisk() - riskReduction));
         }
-        player.setEnergy(clamp(player.getEnergy() + recovery));
+        int variance = random.nextInt(5) - 2;
+        player.setEnergy(clamp(player.getEnergy() + recovery + variance));
     }
 
     private double getCoachMultiplier(Team team) {

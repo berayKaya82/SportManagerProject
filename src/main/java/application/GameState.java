@@ -27,6 +27,7 @@ public class GameState {
     private int totalWeeks;
 
     private List<StandingData> standings;
+    private List<String> aiTeamNames;
 
     private String saveDate;
     private boolean seasonComplete;
@@ -81,6 +82,9 @@ public class GameState {
 
     public List<StandingData> getStandings() { return standings; }
     public void setStandings(List<StandingData> standings) { this.standings = standings; }
+
+    public List<String> getAiTeamNames() { return aiTeamNames; }
+    public void setAiTeamNames(List<String> aiTeamNames) { this.aiTeamNames = aiTeamNames; }
 
     public String getSaveDate() { return saveDate; }
     public void setSaveDate(String saveDate) { this.saveDate = saveDate; }
