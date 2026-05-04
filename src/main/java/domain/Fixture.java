@@ -193,6 +193,12 @@ public class Fixture {
     public int getCurrentWeekNumber() { return currentWeekNumber; }
     public int getTotalWeeks()        { return weeks.size(); }
 
+    public void setCurrentWeekNumber(int weekNumber) {
+        if (!weeks.containsKey(weekNumber))
+            throw new NoSuchElementException("Week not found: " + weekNumber);
+        this.currentWeekNumber = weekNumber;
+    }
+
     // --- Private helper ---
 
     private MatchWeek getWeekOrThrow(int weekNumber) {
