@@ -93,6 +93,15 @@ public class DefaultGameFacade implements GameFacade {
     }
 
     @Override
+    public Match getUpcomingMatch() {
+        ensureGameStarted();
+        Season season = seasonCycleManager.getCurrentSeason();
+        MatchWeek week = season.getFixture().getCurrentWeek();
+        return week.getMatchesForTeam(userTeam).stream()
+                .findFirst().orElse(null);
+    }
+
+    @Override
     public MatchResult simulateUserMatch() {
         ensureUserMatchExists();
         MatchResult result = null;

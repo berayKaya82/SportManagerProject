@@ -51,6 +51,9 @@ public interface GameFacade {
     // Returns the user's match for the current week
     Match getUserMatch();
 
+    // Peeks at the upcoming match from the fixture without starting the week
+    Match getUpcomingMatch();
+
     // Simulates the user's match completely (first half + second half internally)
     MatchResult simulateUserMatch();
 
