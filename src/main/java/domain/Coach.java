@@ -56,7 +56,7 @@ public class Coach {
      * @return the combined training multiplier
      */
     public double getTrainingMultiplier(double coachRelationship) {
-        double levelBonus = 1.0 + (coachLevel - 1) * 0.1;        // Level 1=1.0x, Level 2=1.1x ...
+        double levelBonus = 1.1 + (coachLevel - 1) * 0.1;        // Level 1=1.1x, Level 2=1.2x ...
         double relationBonus = 0.5 + (coachRelationship / 100.0); // 0=0.5x, 50=1.0x, 100=1.5x
         return levelBonus * relationBonus;
     }
@@ -65,16 +65,16 @@ public class Coach {
      * Calculates the energy loss reduction factor for post-match effects.
      * Higher level coaches with good team relationship reduce fatigue.
      *
-     * <p>Returns a value between 0.0 (no reduction) and 0.4 (40% less energy loss).
-     * Example: a Level 3 coach with relationship 60 → ~0.2 + 0.3 = capped at 0.4</p>
+     * <p>Returns a value between 0.05 (5%) and 0.50 (50% less energy loss).</p>
      *
      * @param coachRelationship the current coach-team relationship score (0–100)
      * @return reduction factor to apply on post-match energy loss
      */
     public double getMatchEnergyReduction(double coachRelationship) {
+        double base = 0.05;
         double levelFactor = (coachLevel - 1) * 0.1;
         double relationFactor = coachRelationship / 200.0;
-        return Math.min(0.4, levelFactor + relationFactor);
+        return Math.min(0.50, base + levelFactor + relationFactor);
     }
 
     /**
@@ -86,7 +86,7 @@ public class Coach {
      */
     public int getMatchBonus(double coachRelationship) {
         double score = (coachLevel * 0.3) + (coachRelationship / 100.0) * 0.7;
-        return score >= 1.5 ? 1 : 0;
+        return score >= 1.0 ? 1 : 0;
     }
 
     /**

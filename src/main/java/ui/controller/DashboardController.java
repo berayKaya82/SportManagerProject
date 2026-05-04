@@ -1,6 +1,7 @@
 package ui.controller;
 
 import application.GameFacade;
+import domain.Coach;
 import domain.Match;
 import domain.StandingEntry;
 import javafx.geometry.Insets;
@@ -72,8 +73,33 @@ public class DashboardController {
     private VBox buildCenter() {
         VBox center = new VBox(16);
         center.setPadding(new Insets(24, 28, 24, 28));
-        center.getChildren().addAll(buildMatchCard(), buildStandingsCard());
+        center.getChildren().addAll(buildCoachInfoCard(), buildMatchCard(), buildStandingsCard());
         return center;
+    }
+
+    private HBox buildCoachInfoCard() {
+        HBox card = new HBox(12);
+        card.setPadding(new Insets(14, 20, 14, 20));
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setStyle(card());
+
+        Coach coach = facade.getUserTeam().getCoach();
+        String coachText = coach != null
+                ? coach.getName() + "  (Lv." + coach.getCoachLevel() + ")"
+                : "No coach";
+        Label coachLabel = new Label("COACH:  " + coachText);
+        coachLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        coachLabel.setTextFill(Color.web("#a78bfa"));
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label repLabel = new Label("REP: " + facade.getManagerProfile().getReputation());
+        repLabel.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+        repLabel.setTextFill(Color.web("#6b7280"));
+
+        card.getChildren().addAll(coachLabel, spacer, repLabel);
+        return card;
     }
 
     private VBox buildMatchCard() {
@@ -182,12 +208,14 @@ public class DashboardController {
 
         Button trainingBtn = navBtn("Training",  "nav-btn-green");
         Button rosterBtn   = navBtn("Squad",     "nav-btn-blue");
+        Button coachBtn    = navBtn("Coach",     "nav-btn-purple");
         Button standBtn    = navBtn("Standings", "nav-btn-purple");
         Button saveBtn     = navBtn("Save Game", "nav-btn-gray");
         Button mainMenuBtn = navBtn("Main Menu", "nav-btn-gray");
 
         trainingBtn.setOnAction(e -> SceneManager.getInstance().switchTo("training",  facade));
         rosterBtn.setOnAction(e   -> SceneManager.getInstance().switchTo("roster",    facade));
+        coachBtn.setOnAction(e    -> SceneManager.getInstance().switchTo("coach",     facade));
         standBtn.setOnAction(e    -> SceneManager.getInstance().switchTo("standings", facade));
         saveBtn.setOnAction(e -> {
             List<String> slots = facade.getSaveSlotInfo();
@@ -210,7 +238,7 @@ public class DashboardController {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        panel.getChildren().addAll(navTitle, trainingBtn, rosterBtn, standBtn, saveBtn, spacer, mainMenuBtn);
+        panel.getChildren().addAll(navTitle, trainingBtn, rosterBtn, coachBtn, standBtn, saveBtn, spacer, mainMenuBtn);
         return panel;
     }
 

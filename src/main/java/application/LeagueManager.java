@@ -58,7 +58,7 @@ public class LeagueManager {
             userTeam.addSubstitute(p);
         }
 
-        userTeam.setCoach(new Coach("Default Coach", 1, 1, 0));
+        userTeam.setCoach(new Coach("Ali Yilmaz", 1, 1, 0));
         userTeam.setTactic(sport.getDefaultTactic());
 
         List<Team> teams = new ArrayList<>();
