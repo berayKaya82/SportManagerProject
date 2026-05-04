@@ -94,6 +94,12 @@ public interface GameFacade {
     // Sets the team's coach
     void setCoach(Coach coach);
 
+    // Returns coaches available for hire based on current season/reputation
+    List<Coach> getAvailableCoaches();
+
+    // Returns all coaches in the game (including locked ones)
+    List<Coach> getAllCoaches();
+
     // --- Save / Load ---
     void saveGame(int slotId);
     void loadGame(int slotId);

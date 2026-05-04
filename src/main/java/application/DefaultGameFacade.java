@@ -142,6 +142,12 @@ public class DefaultGameFacade implements GameFacade {
         // Apply post-match effects (condition, energy loss, injuries, recovery)
         matchManager.applyPostMatchEffects(userTeam, currentUserMatch, userMatchResult);
 
+        // Award reputation based on match result
+        applyReputationGain(userMatchResult);
+
+        // Update coach-team relationship based on match result
+        applyRelationshipChange(userMatchResult);
+
         // Reset temporary state for next week
         this.currentUserMatch = null;
         this.currentPeriodResult = null;
@@ -255,6 +261,29 @@ public class DefaultGameFacade implements GameFacade {
     @Override
     public void setCoach(Coach coach) {
         teamManager.setCoach(coach);
+        userTeam.setCoachRelationship(50);
+    }
+
+    @Override
+    public List<Coach> getAvailableCoaches() {
+        return getCoachPool().stream()
+                .filter(c -> c.isAvailable(managerProfile))
+                .toList();
+    }
+
+    @Override
+    public List<Coach> getAllCoaches() {
+        return getCoachPool();
+    }
+
+    private List<Coach> getCoachPool() {
+        return List.of(
+            new Coach("Ali Yilmaz",      1, 1, 0),
+            new Coach("Mehmet Demir",     2, 1, 15),
+            new Coach("Ayse Kara",        3, 2, 40),
+            new Coach("Fatma Celik",      4, 3, 80),
+            new Coach("Kemal Ozturk",     5, 4, 150)
+        );
     }
 
     // --- Save / Load ---
@@ -446,6 +475,38 @@ public class DefaultGameFacade implements GameFacade {
             list.add(pd);
         }
         return list;
+    }
+
+    private void applyReputationGain(MatchResult result) {
+        boolean isHome = currentUserMatch.getHomeTeam().equals(userTeam);
+        int teamGoals = isHome ? result.getHomeGoals() : result.getAwayGoals();
+        int opponentGoals = isHome ? result.getAwayGoals() : result.getHomeGoals();
+
+        if (teamGoals > opponentGoals) {
+            managerProfile.addReputation(10);
+        } else if (teamGoals == opponentGoals) {
+            managerProfile.addReputation(3);
+        } else {
+            managerProfile.addReputation(1);
+        }
+    }
+
+    private void applyRelationshipChange(MatchResult result) {
+        if (userTeam.getCoach() == null) return;
+
+        boolean isHome = currentUserMatch.getHomeTeam().equals(userTeam);
+        int teamGoals = isHome ? result.getHomeGoals() : result.getAwayGoals();
+        int opponentGoals = isHome ? result.getAwayGoals() : result.getHomeGoals();
+
+        double current = userTeam.getCoachRelationship();
+        if (teamGoals > opponentGoals) {
+            current += 5;
+        } else if (teamGoals == opponentGoals) {
+            current += 2;
+        } else {
+            current -= 3;
+        }
+        userTeam.setCoachRelationship(Math.max(0, Math.min(100, current)));
     }
 
     // --- Guards ---

@@ -72,6 +72,9 @@ public class SceneManager {
             case "season-end":
                 root = new SeasonEndController(facade).getRoot();
                 break;
+            case "coach":
+                root = new CoachController(facade).getRoot();
+                break;
             default:
                 throw new IllegalArgumentException("Unknown screen: " + screenName);
         }
