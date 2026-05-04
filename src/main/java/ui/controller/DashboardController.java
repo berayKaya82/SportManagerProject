@@ -116,9 +116,7 @@ public class DashboardController {
         sectionTitle.setTextFill(Color.web("#6b7280"));
         card.getChildren().add(sectionTitle);
 
-        // getUserMatch() throws IllegalStateException until startWeek() is called
-        Match match = null;
-        try { match = facade.getUserMatch(); } catch (IllegalStateException ignored) {}
+        Match match = facade.getUpcomingMatch();
 
         if (match != null) {
             Label vsLabel = new Label(
@@ -131,17 +129,16 @@ public class DashboardController {
             venue.setFont(Font.font("Arial", 12));
             venue.setTextFill(Color.web("#9ca3af"));
 
-            card.getChildren().addAll(vsLabel, venue);
+            Label hint = new Label("→ Go to Training to start the week");
+            hint.setFont(Font.font("Arial", 12));
+            hint.setTextFill(Color.web("#6b7280"));
+
+            card.getChildren().addAll(vsLabel, venue, hint);
         } else {
-            Label hint = new Label("Train your squad to begin Week " + facade.getCurrentWeekNumber());
+            Label hint = new Label("No match scheduled this week.");
             hint.setFont(Font.font("Arial", 14));
-            hint.setTextFill(Color.web("#f97316"));
-
-            Label arrow = new Label("→ Click Training on the right to start the week");
-            arrow.setFont(Font.font("Arial", 12));
-            arrow.setTextFill(Color.web("#6b7280"));
-
-            card.getChildren().addAll(hint, arrow);
+            hint.setTextFill(Color.web("#6b7280"));
+            card.getChildren().add(hint);
         }
 
         return card;
