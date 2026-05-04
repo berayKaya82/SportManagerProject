@@ -68,6 +68,11 @@ public class Season {
                     "Season is not completed yet. No champion determined.");
         return champion;
     }
+
+    public void forceComplete(Team champion) {
+        this.champion = champion;
+        this.status = Status.COMPLETED;
+    }
     public MatchWeek getCurrentWeek(){
         ensureActive();
         return league.getCurrentWeek();

@@ -55,7 +55,7 @@ public class PostMatchController {
             accentColor = "#22c55e";
         } else if (userGoals == opponentGoals) {
             resultText  = "DRAW";
-            bgGradient  = "linear-gradient(to bottom, #fb8500, #ffb703, #fb8500)";
+            bgGradient  = "linear-gradient(to bottom, #023ea8, #0096c7, #023ea0)";
             accentColor = "#facc15";
         } else {
             resultText  = "DEFEAT";

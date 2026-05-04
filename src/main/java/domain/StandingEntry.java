@@ -53,7 +53,7 @@ public class StandingEntry {
     }
 
     public int getPoints() {
-        return (wins * 2) + draws;
+        return (wins * 3) + draws;
     }
 
     public int getGoalDifference() {

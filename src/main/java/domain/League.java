@@ -104,9 +104,6 @@ public class League {
     }
 
     public Team getChampion() {
-        if (!isSeasonComplete())
-            throw new IllegalStateException(
-                    "Season is not complete yet ");
         return leagueTable.getLeader();
     }
 

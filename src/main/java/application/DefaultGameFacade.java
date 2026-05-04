@@ -95,9 +95,11 @@ public class DefaultGameFacade implements GameFacade {
     @Override
     public Match getUpcomingMatch() {
         ensureGameStarted();
+        if (seasonCycleManager.isSeasonComplete()) return null;
         Season season = seasonCycleManager.getCurrentSeason();
         MatchWeek week = season.getFixture().getCurrentWeek();
         return week.getMatchesForTeam(userTeam).stream()
+                .filter(m -> !m.isFinished())
                 .findFirst().orElse(null);
     }
 
@@ -353,7 +355,7 @@ public class DefaultGameFacade implements GameFacade {
         state.setStarters(toPlayerDataList(userTeam.getStartingPlayers()));
         state.setSubstitutes(toPlayerDataList(userTeam.getSubstitutes()));
 
-        state.setCurrentWeek(seasonCycleManager.getCurrentWeekNumber());
+        state.setCurrentWeek(seasonCycleManager.getCurrentSeason().getFixture().getCurrentWeekNumber());
         state.setTotalWeeks(seasonCycleManager.getTotalWeeks());
 
         List<GameState.StandingData> standingDataList = new ArrayList<>();
@@ -370,6 +372,8 @@ public class DefaultGameFacade implements GameFacade {
             standingDataList.add(sd);
         }
         state.setStandings(standingDataList);
+
+        state.setSeasonComplete(seasonCycleManager.isSeasonComplete());
 
         state.setSaveDate(LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
@@ -398,8 +402,18 @@ public class DefaultGameFacade implements GameFacade {
                 league.getName(), loadedSport, gender, league.getTeams());
         seasonCycleManager.startNewSeason();
 
-        restoreWeekNumber(state.getCurrentWeek());
         restoreStandings(state.getStandings(), league.getTeams());
+
+        if (state.isSeasonComplete()) {
+            // Sezon bitmişken kaydedilmiş: 1. sezonu tamamlanmış olarak işaretle,
+            // hemen 2. sezonu başlat. Kullanıcı Dashboard'da Season 2 Week 1'den devam eder.
+            Team champion = seasonCycleManager.getCurrentSeason()
+                    .getLeagueTable().getSortedStandings().get(0).getTeam();
+            seasonCycleManager.forceCompleteAndAdvance(champion);
+            managerProfile.advanceSeason();
+        } else {
+            restoreWeekNumber(state.getCurrentWeek());
+        }
 
         restorePlayers(userTeam, state.getStarters(), state.getSubstitutes());
 

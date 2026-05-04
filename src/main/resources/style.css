@@ -84,6 +84,13 @@
     -fx-scale-x: 1.05; -fx-scale-y: 1.05;
     -fx-effect: dropshadow(three-pass-box, rgba(168,85,247,0.5), 14, 0, 0, 2);
 }
+.nav-btn-red:hover {
+    -fx-background-color: #1a0a0a;
+    -fx-border-color: #ef4444;
+    -fx-text-fill: #ef4444;
+    -fx-scale-x: 1.05; -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(three-pass-box, rgba(239,68,68,0.5), 14, 0, 0, 2);
+}
 .nav-btn-gray:hover {
     -fx-background-color: #1f2937;
     -fx-border-color: #9ca3af;
@@ -278,6 +285,10 @@
 }
 .scroll-pane .scroll-bar:vertical .thumb {
     -fx-background-color: #22c55e;
+    -fx-background-radius: 3;
+}
+.season-end-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #ef4444;
     -fx-background-radius: 3;
 }
 .scroll-pane .scroll-bar .increment-button,
