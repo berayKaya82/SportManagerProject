@@ -27,6 +27,13 @@ public class StandingEntry {
     public int getGoalsFor() {return goalsFor;}
     public int getGoalsAgainst() {return goalsAgainst;}
 
+    public void setPlayed(int played) { this.played = played; }
+    public void setWins(int wins) { this.wins = wins; }
+    public void setDraws(int draws) { this.draws = draws; }
+    public void setLosses(int losses) { this.losses = losses; }
+    public void setGoalsFor(int goalsFor) { this.goalsFor = goalsFor; }
+    public void setGoalsAgainst(int goalsAgainst) { this.goalsAgainst = goalsAgainst; }
+
 
     public void recordResult(MatchResult result, boolean isHomeTeam) {
         int scored = isHomeTeam ? result.getHomeGoals() : result.getAwayGoals();

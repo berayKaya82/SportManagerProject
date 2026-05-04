@@ -360,7 +360,9 @@ public class DefaultGameFacade implements GameFacade {
                 league.getName(), loadedSport, gender, league.getTeams());
         seasonCycleManager.startNewSeason();
 
-        userTeam.getStartingPlayers().forEach(p -> {});
+        restoreWeekNumber(state.getCurrentWeek());
+        restoreStandings(state.getStandings(), league.getTeams());
+
         restorePlayers(userTeam, state.getStarters(), state.getSubstitutes());
 
         if (state.getCoachName() != null) {
@@ -372,6 +374,34 @@ public class DefaultGameFacade implements GameFacade {
         if (state.getTacticStyle() != null) {
             PlayStyle style = PlayStyle.valueOf(state.getTacticStyle());
             userTeam.setTactic(() -> style);
+        }
+    }
+
+    private void restoreWeekNumber(int savedWeek) {
+        Season season = seasonCycleManager.getCurrentSeason();
+        Fixture fixture = season.getFixture();
+        if (savedWeek >= 1 && savedWeek <= fixture.getTotalWeeks()) {
+            fixture.setCurrentWeekNumber(savedWeek);
+        }
+    }
+
+    private void restoreStandings(List<GameState.StandingData> standingsData, List<Team> teams) {
+        if (standingsData == null || standingsData.isEmpty()) return;
+
+        LeagueTable table = seasonCycleManager.getCurrentSeason().getLeagueTable();
+        for (GameState.StandingData sd : standingsData) {
+            Team team = teams.stream()
+                    .filter(t -> t.getName().equals(sd.teamName))
+                    .findFirst().orElse(null);
+            if (team == null) continue;
+
+            StandingEntry entry = table.getEntry(team);
+            entry.setPlayed(sd.played);
+            entry.setWins(sd.won);
+            entry.setDraws(sd.drawn);
+            entry.setLosses(sd.lost);
+            entry.setGoalsFor(sd.goalsFor);
+            entry.setGoalsAgainst(sd.goalsAgainst);
         }
     }
 
