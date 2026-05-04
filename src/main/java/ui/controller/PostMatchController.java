@@ -1,27 +1,25 @@
 package ui.controller;
 
 import application.GameFacade;
-import domain.InjuryStatus;
 import domain.Match;
 import domain.MatchResult;
-import domain.Player;
-import domain.StandingEntry;
 import domain.Team;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
 import ui.SceneManager;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PostMatchController {
 
@@ -41,175 +39,99 @@ public class PostMatchController {
     }
 
     public Parent getRoot() {
-        VBox root = new VBox();
-        root.setStyle("-fx-background-color: #0a0e1a;");
-
-        VBox body = new VBox(14);
-        body.setPadding(new Insets(20, 28, 24, 28));
-        body.getChildren().addAll(
-                buildInjuryCard(),
-                buildStandingsCard(),
-                buildNextWeekButton()
-        );
-
-        root.getChildren().addAll(buildResultHeader(), body);
-        return root;
-    }
-
-    private VBox buildResultHeader() {
         int homeGoals = matchResult != null ? matchResult.getHomeGoals() : 0;
         int awayGoals = matchResult != null ? matchResult.getAwayGoals() : 0;
-
         boolean userIsHome = userMatch != null && userMatch.getHomeTeam().equals(userTeam);
-        int userGoals      = userIsHome ? homeGoals : awayGoals;
-        int opponentGoals  = userIsHome ? awayGoals : homeGoals;
+        int userGoals     = userIsHome ? homeGoals : awayGoals;
+        int opponentGoals = userIsHome ? awayGoals : homeGoals;
 
         String resultText;
         String bgGradient;
-        String resultColor;
+        String accentColor;
 
         if (userGoals > opponentGoals) {
-            resultText = "VICTORY";
-            bgGradient = "linear-gradient(to bottom, #052e16, #0a1a0f, #0a0e1a)";
-            resultColor = "#4ade80";
+            resultText  = "VICTORY";
+            bgGradient  = "linear-gradient(to bottom, #021a07, #064e1a, #021a07)";
+            accentColor = "#22c55e";
         } else if (userGoals == opponentGoals) {
-            resultText = "DRAW";
-            bgGradient = "linear-gradient(to bottom, #1a1400, #0f0d00, #0a0e1a)";
-            resultColor = "#fbbf24";
+            resultText  = "DRAW";
+            bgGradient  = "linear-gradient(to bottom, #fb8500, #ffb703, #fb8500)";
+            accentColor = "#facc15";
         } else {
-            resultText = "DEFEAT";
-            bgGradient = "linear-gradient(to bottom, #2a0000, #1a0000, #0a0e1a)";
-            resultColor = "#ef4444";
+            resultText  = "DEFEAT";
+            bgGradient  = "linear-gradient(to bottom, #1a0202, #7f1d1d, #1a0202)";
+            accentColor = "#ef4444";
+
         }
 
-        VBox header = new VBox(6);
-        header.setStyle(
-                "-fx-background-color: " + bgGradient + ";" +
-                        "-fx-padding: 22 28 18 28;"
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: " + bgGradient + ";");
+
+        Button nextBtn = buildNextWeekButton();
+        VBox.setMargin(nextBtn, new Insets(20, 120, 0, 120));
+
+        VBox center = new VBox(30);
+        center.setAlignment(Pos.CENTER);
+        center.getChildren().addAll(
+                buildResultLabel(resultText, accentColor),
+                buildScoreSection(homeGoals, awayGoals),
+                nextBtn
         );
 
-        Label result = new Label(resultText);
-        result.setFont(Font.font("Arial", FontWeight.BOLD, 40));
-        result.setTextFill(Color.web(resultColor));
+        root.getChildren().add(center);
+        return root;
+    }
 
+    private Label buildResultLabel(String resultText, String accentColor) {
+        Label label = new Label(resultText);
+        label.setFont(Font.font("Arial", FontWeight.BOLD, 250));
+        label.setTextFill(Color.web(accentColor));
+
+        DropShadow glow = new DropShadow(80, Color.web(accentColor));
+        glow.setSpread(0.7);
+        label.setEffect(glow);
+
+        label.setOpacity(0);
+        FadeTransition ft = new FadeTransition(Duration.millis(1800), label);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        ft.setOnFinished(e -> {
+            Timeline pulse = new Timeline(
+                    new KeyFrame(Duration.ZERO,        new KeyValue(label.opacityProperty(), 1.0)),
+                    new KeyFrame(Duration.millis(900),  new KeyValue(label.opacityProperty(), 0.25)),
+                    new KeyFrame(Duration.millis(1800), new KeyValue(label.opacityProperty(), 1.0))
+            );
+            pulse.setCycleCount(Timeline.INDEFINITE);
+            pulse.play();
+        });
+        ft.play();
+
+        return label;
+    }
+
+    private VBox buildScoreSection(int homeGoals, int awayGoals) {
         String home = userMatch != null ? userMatch.getHomeTeam().getName().toUpperCase() : "HOME";
         String away = userMatch != null ? userMatch.getAwayTeam().getName().toUpperCase() : "AWAY";
 
         Label homeLabel = new Label(home);
-        homeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        homeLabel.setTextFill(Color.WHITE);
+        homeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        homeLabel.setTextFill(Color.web("#e5e7eb"));
 
         Label scoreLabel = new Label(homeGoals + "  —  " + awayGoals);
-        scoreLabel.setFont(Font.font("Arial", FontWeight.BOLD, 38));
-        scoreLabel.setTextFill(Color.web("#fbbf24"));
-        scoreLabel.setPadding(new Insets(0, 22, 0, 22));
+        scoreLabel.setFont(Font.font("Arial", FontWeight.BOLD, 58));
+        scoreLabel.setTextFill(Color.WHITE);
+        scoreLabel.setPadding(new Insets(0, 32, 0, 32));
 
         Label awayLabel = new Label(away);
-        awayLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        awayLabel.setFont(Font.font("Arial", FontWeight.BOLD, 22));
         awayLabel.setTextFill(Color.web("#9ca3af"));
 
         HBox scoreRow = new HBox(homeLabel, scoreLabel, awayLabel);
-        scoreRow.setAlignment(Pos.CENTER_LEFT);
+        scoreRow.setAlignment(Pos.CENTER);
 
-        header.getChildren().addAll(result, scoreRow);
-        return header;
-    }
-
-    private VBox buildInjuryCard() {
-        VBox card = card();
-        card.getChildren().add(sectionLabel("INJURY REPORT"));
-
-        List<Player> all = new ArrayList<>();
-        all.addAll(userTeam.getStartingPlayers());
-        all.addAll(userTeam.getSubstitutes());
-
-        List<Player> injured = all.stream()
-                .filter(p -> p.getInjuryStatus() == InjuryStatus.INJURED)
-                .collect(Collectors.toList());
-
-        if (injured.isEmpty()) {
-            Label none = new Label("No injuries this match.");
-            none.setTextFill(Color.web("#4ade80"));
-            none.setFont(Font.font("Arial", 13));
-            card.getChildren().add(none);
-        } else {
-            for (Player p : injured) {
-                HBox row = new HBox(10);
-                row.setAlignment(Pos.CENTER_LEFT);
-
-                Label badge = new Label("INJURED");
-                badge.setStyle(
-                        "-fx-background-color: #ef4444; -fx-text-fill: white;" +
-                                "-fx-font-size: 10px; -fx-font-weight: bold;" +
-                                "-fx-padding: 2 6; -fx-background-radius: 4;"
-                );
-
-                Label info = new Label(p.getName() + "  — out for " + p.getInjuredGamesRemaining() + " game(s)");
-                info.setTextFill(Color.web("#f87171"));
-                info.setFont(Font.font("Arial", 13));
-
-                row.getChildren().addAll(badge, info);
-                card.getChildren().add(row);
-            }
-        }
-
-        return card;
-    }
-
-    private VBox buildStandingsCard() {
-        VBox card = card();
-        card.getChildren().add(sectionLabel("STANDINGS"));
-
-        VBox list = new VBox(2);
-        list.getChildren().add(standingRow("#6b7280", true, "POS", "TEAM", "PTS", "W", "D", "L", "GD"));
-
-        List<StandingEntry> standings = facade.getStandings();
-        for (int i = 0; i < standings.size(); i++) {
-            StandingEntry entry = standings.get(i);
-            boolean isUser = entry.getTeam().equals(userTeam);
-            String color = isUser ? "#22c55e" : "#e5e7eb";
-            list.getChildren().add(standingRow(color, false,
-                    String.valueOf(i + 1),
-                    entry.getTeam().getName(),
-                    String.valueOf(entry.getPoints()),
-                    String.valueOf(entry.getWins()),
-                    String.valueOf(entry.getDraws()),
-                    String.valueOf(entry.getLosses()),
-                    String.valueOf(entry.getGoalDifference())));
-        }
-
-        ScrollPane scroll = new ScrollPane(list);
-        scroll.setFitToWidth(true);
-        scroll.setPrefHeight(180);
-        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-
-        card.getChildren().add(scroll);
-        return card;
-    }
-
-    private HBox standingRow(String color, boolean bold, String pos, String team,
-                              String pts, String w, String d, String l, String gd) {
-        HBox row = new HBox();
-        row.setAlignment(Pos.CENTER_LEFT);
-        FontWeight weight = bold ? FontWeight.BOLD : FontWeight.NORMAL;
-        row.getChildren().addAll(
-            col(pos,  30, color, weight),
-            col(team, 170, color, weight),
-            col(pts,  36, color, weight),
-            col(w,    28, color, weight),
-            col(d,    28, color, weight),
-            col(l,    28, color, weight),
-            col(gd,   36, color, weight)
-        );
-        return row;
-    }
-
-    private Label col(String text, double width, String color, FontWeight weight) {
-        Label l = new Label(text);
-        l.setPrefWidth(width);
-        l.setFont(Font.font("Arial", weight, 12));
-        l.setTextFill(Color.web(color));
-        return l;
+        VBox section = new VBox(8, scoreRow);
+        section.setAlignment(Pos.CENTER);
+        return section;
     }
 
     private Button buildNextWeekButton() {
@@ -227,23 +149,6 @@ public class PostMatchController {
         return btn;
     }
 
-    private VBox card() {
-        VBox card = new VBox(8);
-        card.setStyle(
-                "-fx-background-color: #111827; -fx-background-radius: 12;" +
-                        "-fx-border-color: #1f2937; -fx-border-radius: 12;" +
-                        "-fx-border-width: 1; -fx-padding: 14 18;"
-        );
-        return card;
-    }
-
-    private Label sectionLabel(String text) {
-        Label l = new Label(text);
-        l.setFont(Font.font("Arial", FontWeight.BOLD, 11));
-        l.setTextFill(Color.web("#6b7280"));
-        return l;
-    }
-
     private MatchResult safeGetResult() {
         try { return facade.getCurrentPeriodResult(); }
         catch (IllegalStateException e) { return null; }
@@ -254,4 +159,3 @@ public class PostMatchController {
         catch (IllegalStateException e) { return null; }
     }
 }
-
