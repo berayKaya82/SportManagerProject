@@ -41,9 +41,9 @@ public class HandballScoringRule implements ScoringRule {
     private int calculateGoals(Team attackingTeam,Team defendingTeam , boolean isHome,boolean isHalf){
         int score;
         if(isHalf){
-            score =10 +random.nextInt(9);//first half 10-18
+            score =10 +random.nextInt(4);//first half 10-18
         }else{
-            score=20 +random.nextInt(16);//end of the match 20-35
+            score=20 +random.nextInt(10);//end of the match 20-35
         }
         if(isHome){
             score +=1;//home advantage
