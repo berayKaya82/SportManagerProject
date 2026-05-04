@@ -165,6 +165,22 @@ public class DefaultGameFacade implements GameFacade {
         this.pendingAiResults = null;
     }
 
+    /**
+     * Debug/test only — simulates N weeks automatically with MEDIUM training.
+     * Not exposed in GameFacade interface, not used in UI.
+     */
+    public void debugSimulateWeeks(int count) {
+        ensureGameStarted();
+        for (int i = 0; i < count; i++) {
+            if (isSeasonComplete()) break;
+            trainingManager.applyWeeklyRecovery(userTeam);
+            trainingManager.applyTraining(userTeam, TrainingIntensity.MEDIUM);
+            startWeek();
+            MatchResult result = simulateUserMatch();
+            submitWeekResults(result);
+        }
+    }
+
     @Override
     public void applyTraining(TrainingIntensity intensity) {
         ensureGameStarted();
@@ -193,9 +209,26 @@ public class DefaultGameFacade implements GameFacade {
 
     @Override
     public void startNewSeason() {
-        // Advance to next season and update manager profile
         seasonCycleManager.advanceToNextSeason();
         managerProfile.advanceSeason();
+        applyOffSeasonRecovery();
+    }
+
+    private void applyOffSeasonRecovery() {
+        for (Player p : userTeam.getStartingPlayers()) {
+            p.setEnergy(100);
+            p.setCondition(Math.min(100, p.getCondition() + 30));
+            if (p.getInjuryStatus() == InjuryStatus.INJURED) {
+                p.setInjuryStatus(InjuryStatus.HEALTHY);
+            }
+        }
+        for (Player p : userTeam.getSubstitutes()) {
+            p.setEnergy(100);
+            p.setCondition(Math.min(100, p.getCondition() + 30));
+            if (p.getInjuryStatus() == InjuryStatus.INJURED) {
+                p.setInjuryStatus(InjuryStatus.HEALTHY);
+            }
+        }
     }
 
     @Override
@@ -355,6 +388,15 @@ public class DefaultGameFacade implements GameFacade {
         state.setStarters(toPlayerDataList(userTeam.getStartingPlayers()));
         state.setSubstitutes(toPlayerDataList(userTeam.getSubstitutes()));
 
+        List<String> aiNames = new ArrayList<>();
+        List<Team> allTeams = seasonCycleManager.getCurrentSeason().getLeague().getTeams();
+        for (Team t : allTeams) {
+            if (!t.getName().equals(userTeam.getName())) {
+                aiNames.add(t.getName());
+            }
+        }
+        state.setAiTeamNames(aiNames);
+
         state.setCurrentWeek(seasonCycleManager.getCurrentSeason().getFixture().getCurrentWeekNumber());
         state.setTotalWeeks(seasonCycleManager.getTotalWeeks());
 
@@ -392,8 +434,14 @@ public class DefaultGameFacade implements GameFacade {
         Gender gender = Gender.valueOf(state.getGenderName());
 
         this.leagueManager = new LeagueManager(teamGenerator, playerGenerator);
-        League league = leagueManager.createLeagueWithUserTeam(
-                state.getTeamName(), gender, loadedSport);
+        League league;
+        if (state.getAiTeamNames() != null && state.getAiTeamNames().size() == 17) {
+            league = leagueManager.createLeagueWithNamedTeams(
+                    state.getTeamName(), gender, loadedSport, state.getAiTeamNames());
+        } else {
+            league = leagueManager.createLeagueWithUserTeam(
+                    state.getTeamName(), gender, loadedSport);
+        }
 
         this.userTeam = league.getTeams().get(0);
         this.teamManager = new TeamManager(userTeam, playerManager);
