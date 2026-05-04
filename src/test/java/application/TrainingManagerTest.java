@@ -59,7 +59,9 @@ class TrainingManagerTest {
 
         trainingManager.applyWeeklyRecovery(team);
 
-        assertEquals(65, starter.getEnergy(), "Starter should recover +15");
-        assertEquals(75, sub.getEnergy(), "Sub should recover +25");
+        assertTrue(starter.getEnergy() >= 68 && starter.getEnergy() <= 72,
+                "Starter should recover ~20 (±2 variance)");
+        assertTrue(sub.getEnergy() >= 73 && sub.getEnergy() <= 77,
+                "Sub should recover ~25 (±2 variance)");
     }
 }

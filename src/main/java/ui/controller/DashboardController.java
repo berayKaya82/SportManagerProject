@@ -47,10 +47,12 @@ public class DashboardController {
         teamLabel.setFont(Font.font("Arial", FontWeight.BOLD, 26));
         teamLabel.setTextFill(Color.WHITE);
 
-        Label managerLabel= new Label("Manager:" + facade.getManagerProfile().getManagerName());
+        Label managerLabel = new Label("Manager: " + facade.getManagerProfile().getManagerName()
+                + "  |  Season " + facade.getCurrentSeasonNumber()
+                + "  |  Reputation: " + facade.getManagerProfile().getReputation());
         managerLabel.setTextFill(Color.web("#9ca3af"));
         managerLabel.setFont(Font.font("Arial", 12));
-                Label weekLabel = new Label(
+        Label weekLabel = new Label(
             "WEEK " + facade.getCurrentWeekNumber() + " / " + facade.getTotalWeeks());
         weekLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         weekLabel.setTextFill(Color.web("#4ade80"));

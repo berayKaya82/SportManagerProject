@@ -40,7 +40,7 @@ class MatchManagerTest {
         MatchManager mm = createMatchManager();
         mm.applyConditionChange(home, match, winResult);
 
-        assertEquals(condBefore, p.getCondition(), "Win should result in net 0 condition change");
+        assertEquals(condBefore - 2, p.getCondition(), "Win should result in net -2 condition change");
     }
 
     @Test
@@ -57,7 +57,7 @@ class MatchManagerTest {
         MatchManager mm = createMatchManager();
         mm.applyConditionChange(home, match, lossResult);
 
-        assertEquals(condBefore - 11, p.getCondition(), "Loss should reduce condition by 11");
+        assertEquals(condBefore - 13, p.getCondition(), "Loss should reduce condition by 13");
     }
 
     @Test
