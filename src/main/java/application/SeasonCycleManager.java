@@ -77,6 +77,13 @@ public class SeasonCycleManager {
         startNewSeason();
     }
 
+    public void forceCompleteAndAdvance(Team champion) {
+        if (currentSeason == null)
+            throw new IllegalStateException("No season has been started yet");
+        currentSeason.forceComplete(champion);
+        startNewSeason();
+    }
+
     // --- Queries: League & Table ---
     public League getCurrentLeague(){
        ensureSeasonExists();

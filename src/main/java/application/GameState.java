@@ -29,6 +29,7 @@ public class GameState {
     private List<StandingData> standings;
 
     private String saveDate;
+    private boolean seasonComplete;
 
     public String getManagerName() { return managerName; }
     public void setManagerName(String managerName) { this.managerName = managerName; }
@@ -83,6 +84,9 @@ public class GameState {
 
     public String getSaveDate() { return saveDate; }
     public void setSaveDate(String saveDate) { this.saveDate = saveDate; }
+
+    public boolean isSeasonComplete() { return seasonComplete; }
+    public void setSeasonComplete(boolean seasonComplete) { this.seasonComplete = seasonComplete; }
 
     public static class PlayerData {
         public int id;

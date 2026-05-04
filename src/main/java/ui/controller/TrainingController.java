@@ -105,6 +105,7 @@ public class TrainingController {
         Button doneBtn = new Button("Done — Start Week →");
         doneBtn.getStyleClass().addAll("btn", "btn-primary");
         doneBtn.setOnAction(e -> {
+            facade.applyWeeklyRecovery();
             facade.applyTraining(selectedIntensity);
             facade.startWeek();
             SceneManager.getInstance().switchTo("vs-screen", facade);
