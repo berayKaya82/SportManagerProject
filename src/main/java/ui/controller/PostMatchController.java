@@ -143,7 +143,6 @@ public class PostMatchController {
             if (facade.isSeasonComplete()) {
                 SceneManager.getInstance().switchTo("season-end", facade);
             } else {
-                facade.applyWeeklyRecovery();
                 SceneManager.getInstance().switchTo("dashboard", facade);
             }
         });
