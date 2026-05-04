@@ -41,9 +41,9 @@ public class FootballScoringRule implements ScoringRule {
  private int calculateGoals(Team attackingTeam,Team defendingTeam , boolean isHome,boolean isHalf){
        int score;
         if(isHalf){
-            score =random.nextInt(3)+random.nextInt(3);
+            score =random.nextInt(2)+random.nextInt(2);
         }else{
-            score=random.nextInt(6)+random.nextInt(6);
+            score=random.nextInt(4)+random.nextInt(4);
         }
         if(isHome){
             score +=1;//home advantage
