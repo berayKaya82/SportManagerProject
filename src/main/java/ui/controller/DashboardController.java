@@ -46,11 +46,15 @@ public class DashboardController {
         Label teamLabel = new Label(facade.getUserTeam().getName().toUpperCase());
         teamLabel.setFont(Font.font("Arial", FontWeight.BOLD, 26));
         teamLabel.setTextFill(Color.WHITE);
-        Label weekLabel = new Label(
+
+        Label managerLabel= new Label("Manager:" + facade.getManagerProfile().getManagerName());
+        managerLabel.setTextFill(Color.web("#9ca3af"));
+        managerLabel.setFont(Font.font("Arial", 12));
+                Label weekLabel = new Label(
             "WEEK " + facade.getCurrentWeekNumber() + " / " + facade.getTotalWeeks());
         weekLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         weekLabel.setTextFill(Color.web("#4ade80"));
-        titleBlock.getChildren().addAll(teamLabel, weekLabel);
+        titleBlock.getChildren().addAll(teamLabel, managerLabel, weekLabel);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
