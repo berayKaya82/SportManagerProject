@@ -146,10 +146,11 @@ public class PreMatchController {
     private HBox buildPlayerRow(Player p) {
         boolean injured = p.getInjuryStatus() == InjuryStatus.INJURED;
 
-        Label name = new Label(p.getName());
+        String tag = injured ? " (I)" : " (H)";
+        Label name = new Label(p.getName() + tag);
         name.setPrefWidth(160);
         name.setFont(Font.font("Arial", 13));
-        name.setTextFill(injured ? Color.web("#ef4444") : Color.WHITE);
+        name.setTextFill(injured ? Color.web("#ef4444") : Color.web("#4ade80"));
 
         Label eLabel = new Label("E");
         eLabel.setFont(Font.font("Arial", FontWeight.BOLD, 11));
@@ -172,17 +173,6 @@ public class PreMatchController {
 
         HBox row = new HBox(8, name, eLabel, energyBar, cLabel, condBar);
         row.setAlignment(Pos.CENTER_LEFT);
-
-        if (injured) {
-            Label badge = new Label("INJURED");
-            badge.setStyle(
-                    "-fx-background-color: #ef4444; -fx-text-fill: white;" +
-                            "-fx-font-size: 10px; -fx-font-weight: bold;" +
-                            "-fx-padding: 2 6; -fx-background-radius: 4;"
-            );
-            row.getChildren().add(badge);
-        }
-
         return row;
     }
 

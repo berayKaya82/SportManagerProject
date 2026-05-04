@@ -37,6 +37,7 @@ public class HalfTimeController {
         VBox body = new VBox(14);
         body.setPadding(new Insets(20, 28, 24, 28));
         body.getChildren().addAll(
+                buildInjuryCard(),
                 buildTacticCard(),
                 buildSubstitutionCard(),
                 buildSquadCard(),
@@ -82,6 +83,47 @@ public class HalfTimeController {
 
         header.getChildren().addAll(periodLabel, scoreRow);
         return header;
+    }
+
+    private VBox buildInjuryCard() {
+        VBox card = card();
+        card.getChildren().add(sectionLabel("INJURY REPORT"));
+
+        java.util.List<Player> all = new java.util.ArrayList<>();
+        all.addAll(facade.getUserTeam().getStartingPlayers());
+        all.addAll(facade.getUserTeam().getSubstitutes());
+
+        java.util.List<Player> injured = all.stream()
+                .filter(p -> p.getInjuryStatus() == InjuryStatus.INJURED)
+                .collect(java.util.stream.Collectors.toList());
+
+        if (injured.isEmpty()) {
+            Label none = new Label("No injuries — all players fit.");
+            none.setTextFill(Color.web("#4ade80"));
+            none.setFont(Font.font("Arial", 13));
+            card.getChildren().add(none);
+        } else {
+            for (Player p : injured) {
+                HBox row = new HBox(10);
+                row.setAlignment(Pos.CENTER_LEFT);
+
+                Label badge = new Label("I");
+                badge.setStyle(
+                        "-fx-background-color: #ef4444; -fx-text-fill: white;" +
+                        "-fx-font-size: 11px; -fx-font-weight: bold;" +
+                        "-fx-padding: 1 6; -fx-background-radius: 3;"
+                );
+
+                Label info = new Label(p.getName() + "  —  out for " + p.getInjuredGamesRemaining() + " more game(s)");
+                info.setTextFill(Color.web("#f87171"));
+                info.setFont(Font.font("Arial", 13));
+
+                row.getChildren().addAll(badge, info);
+                card.getChildren().add(row);
+            }
+        }
+
+        return card;
     }
 
     private VBox buildTacticCard() {
@@ -208,10 +250,11 @@ public class HalfTimeController {
     private HBox buildPlayerRow(Player p) {
         boolean injured = p.getInjuryStatus() == InjuryStatus.INJURED;
 
-        Label name = new Label(p.getName());
+        String tag = injured ? " (I)" : " (H)";
+        Label name = new Label(p.getName() + tag);
         name.setPrefWidth(160);
         name.setFont(Font.font("Arial", 13));
-        name.setTextFill(injured ? Color.web("#ef4444") : Color.WHITE);
+        name.setTextFill(injured ? Color.web("#ef4444") : Color.web("#4ade80"));
 
         Label eLabel = new Label("E");
         eLabel.setFont(Font.font("Arial", FontWeight.BOLD, 11));
@@ -244,17 +287,6 @@ public class HalfTimeController {
 
         HBox row = new HBox(8, name, eLabel, energyBar, eVal, cLabel, condBar, cVal);
         row.setAlignment(Pos.CENTER_LEFT);
-
-        if (injured) {
-            Label badge = new Label("INJURED");
-            badge.setStyle(
-                    "-fx-background-color: #ef4444; -fx-text-fill: white;" +
-                            "-fx-font-size: 10px; -fx-font-weight: bold;" +
-                            "-fx-padding: 2 6; -fx-background-radius: 4;"
-            );
-            row.getChildren().add(badge);
-        }
-
         return row;
     }
 
