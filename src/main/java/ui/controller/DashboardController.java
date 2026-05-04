@@ -209,7 +209,7 @@ public class DashboardController {
 
         Button trainingBtn = navBtn("Training",  "nav-btn-green");
         Button rosterBtn   = navBtn("Squad",     "nav-btn-blue");
-        Button coachBtn    = navBtn("Coach",     "nav-btn-purple");
+        Button coachBtn    = navBtn("Coach",     "nav-btn-red");
         Button standBtn    = navBtn("Standings", "nav-btn-purple");
         Button saveBtn     = navBtn("Save Game", "nav-btn-gray");
         Button mainMenuBtn = navBtn("Main Menu", "nav-btn-gray");
