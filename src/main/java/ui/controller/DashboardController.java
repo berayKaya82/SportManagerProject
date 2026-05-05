@@ -32,7 +32,20 @@ public class DashboardController {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #0a0e1a;");
         root.setTop(buildTopBar());
-        root.setCenter(buildCenter());
+
+        // Center is wrapped in a ScrollPane so the cards (coach / injury / match /
+        // standings) can grow without pushing the window: when the user shrinks
+        // the stage the middle column scrolls instead of overflowing.
+        ScrollPane centerScroll = new ScrollPane(buildCenter());
+        centerScroll.setFitToWidth(true);
+        centerScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        centerScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        centerScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        // Allow the scroll viewport itself to shrink to the available space.
+        centerScroll.setMinHeight(0);
+        centerScroll.setMinWidth(0);
+        root.setCenter(centerScroll);
+
         root.setRight(buildNavPanel());
         return root;
     }
@@ -245,6 +258,7 @@ public class DashboardController {
     // ── Right nav panel ───────────────────────────────────────────────────────
 
     private VBox buildNavPanel() {
+        // Outer panel — fixed width so the right column never collapses or stretches.
         VBox panel = new VBox(10);
         panel.setPadding(new Insets(24, 16, 24, 16));
         panel.setStyle(
@@ -253,6 +267,8 @@ public class DashboardController {
             "-fx-border-width: 0 0 0 1;"
         );
         panel.setPrefWidth(170);
+        panel.setMinWidth(170);
+        panel.setMaxWidth(170);
         panel.setAlignment(Pos.TOP_CENTER);
 
         Label navTitle = new Label("MENU");
@@ -289,10 +305,22 @@ public class DashboardController {
         });
         mainMenuBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
 
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        // Upper button stack — when the panel can't fit every button, this section
+        // becomes scrollable so Main Menu (anchored below) is never pushed off-screen.
+        VBox upperButtons = new VBox(10);
+        upperButtons.setAlignment(Pos.TOP_CENTER);
+        upperButtons.getChildren().addAll(trainingBtn, rosterBtn, coachBtn, standBtn, saveBtn);
 
-        panel.getChildren().addAll(navTitle, trainingBtn, rosterBtn, coachBtn, standBtn, saveBtn, spacer, mainMenuBtn);
+        ScrollPane upperScroll = new ScrollPane(upperButtons);
+        upperScroll.setFitToWidth(true);
+        upperScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        upperScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        upperScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        upperScroll.setMinHeight(0);
+        // Take all leftover vertical space so Main Menu sits at the bottom edge.
+        VBox.setVgrow(upperScroll, Priority.ALWAYS);
+
+        panel.getChildren().addAll(navTitle, upperScroll, mainMenuBtn);
         return panel;
     }
 
