@@ -31,6 +31,18 @@ public class GameStartController {
         return root;
     }
 
+    // ── Two-column form filling the whole center ─────────────────────────────
+    //
+    // The form lives in a 2-column GridPane where each column is locked to
+    // exactly 50% of the available width via ColumnConstraints#setPercentWidth.
+    // We deliberately do NOT use HBox + Hgrow here: with HBox the cards are
+    // sized as (preferredWidth + share of leftover space), and because the two
+    // cards have different preferred widths (left: name fields; right: combos +
+    // spacer + button), opening the Sport ComboBox triggers a layout pass that
+    // re-evaluates preferred sizes and visibly shifts the cards. With percent
+    // columns the cards' widths are independent of any child's preferred size,
+    // so dropdown opening cannot reshape the layout.
+
     // ── Header bar (same pattern as Training / Roster) ───────────────────────
 
     private HBox buildHeader() {
@@ -60,9 +72,7 @@ public class GameStartController {
         return header;
     }
 
-    // ── Two-column form filling the whole center ─────────────────────────────
-
-    private HBox buildForm() {
+    private GridPane buildForm() {
         // Fields
         TextField managerField = new TextField();
         managerField.setPromptText("e.g. Alex Ferguson");
@@ -76,14 +86,18 @@ public class GameStartController {
         sportBox.getItems().addAll("FOOTBALL", "HANDBALL");
         sportBox.setValue("FOOTBALL");
         sportBox.setMaxWidth(Double.MAX_VALUE);
+        // Don't let the popup's content widen the control's preferred size.
+        sportBox.setMinWidth(0);
 
         ComboBox<Gender> genderBox = new ComboBox<>();
         genderBox.getItems().addAll(Gender.values());
         genderBox.setValue(Gender.MALE);
         genderBox.setMaxWidth(Double.MAX_VALUE);
+        genderBox.setMinWidth(0);
 
         // Left column — identity fields
         VBox leftCard = card();
+        leftCard.setMaxWidth(Double.MAX_VALUE);
         leftCard.getChildren().addAll(
                 sectionLabel("MANAGER DETAILS"),
                 formRow("Manager Name", managerField),
@@ -113,21 +127,56 @@ public class GameStartController {
         });
 
         VBox rightCard = card();
+        rightCard.setMaxWidth(Double.MAX_VALUE);
+        Region rightSpacer = new Region();
+        VBox.setVgrow(rightSpacer, Priority.ALWAYS);
         rightCard.getChildren().addAll(
                 sectionLabel("MATCH SETTINGS"),
                 formRow("Sport",         sportBox),
                 formRow("League Gender", genderBox),
-                new Region() {{ VBox.setVgrow(this, Priority.ALWAYS); }},
+                rightSpacer,
                 startBtn
         );
 
-        // Outer row — two cards side by side, full width
-        HBox row = new HBox(20);
-        row.setPadding(new Insets(28));
-        HBox.setHgrow(leftCard,  Priority.ALWAYS);
-        HBox.setHgrow(rightCard, Priority.ALWAYS);
-        row.getChildren().addAll(leftCard, rightCard);
-        return row;
+        // Outer grid — two columns, each pinned to 50% of the available width.
+        // GridPane percent columns ignore children's preferred widths, which is
+        // what prevents the ComboBox dropdown from re-shuffling the cards.
+        GridPane grid = new GridPane();
+        grid.setHgap(20);
+        grid.setPadding(new Insets(28));
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(50);
+        col1.setHgrow(Priority.ALWAYS);
+        col1.setFillWidth(true);
+
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(50);
+        col2.setHgrow(Priority.ALWAYS);
+        col2.setFillWidth(true);
+
+        grid.getColumnConstraints().addAll(col1, col2);
+
+        // Single row that fills any remaining vertical space so the right
+        // card's spacer can push Start Game to the bottom.
+        RowConstraints row = new RowConstraints();
+        row.setVgrow(Priority.ALWAYS);
+        row.setFillHeight(true);
+        grid.getRowConstraints().add(row);
+
+        // Make sure each card stretches to fill its column / row cell.
+        GridPane.setHgrow(leftCard,  Priority.ALWAYS);
+        GridPane.setHgrow(rightCard, Priority.ALWAYS);
+        GridPane.setVgrow(leftCard,  Priority.ALWAYS);
+        GridPane.setVgrow(rightCard, Priority.ALWAYS);
+        GridPane.setFillWidth(leftCard,  true);
+        GridPane.setFillWidth(rightCard, true);
+        GridPane.setFillHeight(leftCard,  true);
+        GridPane.setFillHeight(rightCard, true);
+
+        grid.add(leftCard,  0, 0);
+        grid.add(rightCard, 1, 0);
+        return grid;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
