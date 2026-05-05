@@ -40,8 +40,8 @@ public class LeagueManager {
             throw new IllegalArgumentException("Gender and sport cannot be null");
 
         String sportKey = sport.getSportName();
-        if (leagues.containsKey(gender) && leagues.get(gender).containsKey(sportKey))
-            throw new IllegalStateException("League already exists for this gender and sport");
+        // Allow a new career in the same session (e.g. main menu → New Game with same sport/gender)
+        leagues.computeIfAbsent(gender, g -> new HashMap<>()).remove(sportKey);
 
         int userTeamId = nextTeamId++;
         Team userTeam = new Team(userTeamId, teamName, gender);

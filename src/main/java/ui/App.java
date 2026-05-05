@@ -6,8 +6,8 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class App extends Application {
-
-    private static final boolean DEBUG_SKIP_TO_WEEK = true;
+    // TO START FROM WEEK 33 WITH MEDIUM TRAININGS AND BALANCED TACTICS - SET THAT TRUE
+    private static final boolean DEBUG_SKIP_TO_WEEK = false;
     private static final int DEBUG_TARGET_WEEK = 33;
 
     private final GameFacade facade = new DefaultGameFacade();
