@@ -2,7 +2,9 @@ package ui.controller;
 
 import application.GameFacade;
 import domain.Coach;
+import domain.InjuryStatus;
 import domain.Match;
+import domain.Player;
 import domain.StandingEntry;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,6 +16,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DashboardController {
@@ -79,7 +83,10 @@ public class DashboardController {
     private VBox buildCenter() {
         VBox center = new VBox(16);
         center.setPadding(new Insets(24, 28, 24, 28));
-        center.getChildren().addAll(buildCoachInfoCard(), buildMatchCard(), buildStandingsCard());
+        center.getChildren().add(buildCoachInfoCard());
+        VBox injuryCard = buildInjuryReportCardIfAny();
+        if (injuryCard != null) center.getChildren().add(injuryCard);
+        center.getChildren().addAll(buildMatchCard(), buildStandingsCard());
         return center;
     }
 
@@ -105,6 +112,50 @@ public class DashboardController {
         repLabel.setTextFill(Color.web("#6b7280"));
 
         card.getChildren().addAll(coachLabel, spacer, repLabel);
+        return card;
+    }
+
+    /**
+     * Shown only when at least one squad member is injured — mirrors pre-match injury awareness.
+     */
+    private VBox buildInjuryReportCardIfAny() {
+        List<Player> injured = new ArrayList<>();
+        for (Player p : facade.getUserTeam().getStartingPlayers()) {
+            if (p.getInjuryStatus() == InjuryStatus.INJURED) injured.add(p);
+        }
+        for (Player p : facade.getUserTeam().getSubstitutes()) {
+            if (p.getInjuryStatus() == InjuryStatus.INJURED) injured.add(p);
+        }
+        if (injured.isEmpty()) return null;
+
+        injured.sort(Comparator.comparing(Player::getName));
+
+        VBox card = new VBox(8);
+        card.setPadding(new Insets(16, 20, 16, 20));
+        card.setStyle(
+                "-fx-background-color: #450a0a; -fx-background-radius: 10;" +
+                "-fx-border-color: #7f1d1d; -fx-border-radius: 10; -fx-border-width: 1;"
+        );
+
+        Label title = new Label("INJURY REPORT — open Squad to substitute");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+        title.setTextFill(Color.web("#fca5a5"));
+
+        Label hint = new Label("Injured players do not count in match strength until replaced.");
+        hint.setFont(Font.font("Arial", 11));
+        hint.setTextFill(Color.web("#9ca3af"));
+        hint.setWrapText(true);
+
+        card.getChildren().addAll(title, hint);
+
+        for (Player p : injured) {
+            String line = p.getName() + "  —  " + p.getInjuredGamesRemaining() + " game(s) out";
+            Label row = new Label(line);
+            row.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            row.setTextFill(Color.web("#fecaca"));
+            card.getChildren().add(row);
+        }
+
         return card;
     }
 

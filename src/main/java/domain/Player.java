@@ -102,6 +102,14 @@ public class Player {
     }
 
     /**
+     * Clears any injury (used at season break / off-season).
+     */
+    public void clearInjury() {
+        this.injuryStatus = InjuryStatus.HEALTHY;
+        this.injuredGamesRemaining = 0;
+    }
+
+    /**
      * A player is available if healthy and has enough energy to play.
      */
     public boolean isAvailableForMatch() {

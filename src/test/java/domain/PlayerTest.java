@@ -80,4 +80,13 @@ class PlayerTest {
         p.injure(1);
         assertFalse(p.isAvailableForMatch());
     }
+
+    @Test
+    void clearInjuryResetsStatusAndCounter() {
+        Player p = createPlayer();
+        p.injure(4);
+        p.clearInjury();
+        assertEquals(InjuryStatus.HEALTHY, p.getInjuryStatus());
+        assertEquals(0, p.getInjuredGamesRemaining());
+    }
 }
