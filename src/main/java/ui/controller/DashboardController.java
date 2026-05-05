@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -318,6 +319,7 @@ public class DashboardController {
         Button btn = new Button(text);
         btn.getStyleClass().addAll("nav-btn", colorClass);
         btn.setMaxWidth(Double.MAX_VALUE);
+        btn.setOnMouseEntered(e -> SoundManager.getInstance().playButton());
         return btn;
     }
 

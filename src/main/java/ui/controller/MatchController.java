@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.List;
 
@@ -177,12 +178,14 @@ public class MatchController {
         Button halftimeBtn = new Button("HALF TIME  →  SUBSTITUTION / TACTIC");
         halftimeBtn.setMaxWidth(Double.MAX_VALUE);
         halftimeBtn.getStyleClass().add("btn-orange");
+        SoundManager.getInstance().wire(halftimeBtn);
         halftimeBtn.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         halftimeBtn.setOnAction(e -> SceneManager.getInstance().switchTo("half-time", facade));
 
         Button skipBtn = new Button("▶  PLAY 2ND HALF DIRECTLY");
         skipBtn.setMaxWidth(Double.MAX_VALUE);
         skipBtn.getStyleClass().add("btn-primary");
+        SoundManager.getInstance().wire(skipBtn);
         skipBtn.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         skipBtn.setOnAction(e -> {
             facade.playPeriod(2);

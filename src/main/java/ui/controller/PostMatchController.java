@@ -20,6 +20,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 import ui.SceneManager;
+import ui.SoundManager;
 
 public class PostMatchController {
 
@@ -53,15 +54,17 @@ public class PostMatchController {
             resultText  = "VICTORY";
             bgGradient  = "linear-gradient(to bottom, #021a07, #064e1a, #021a07)";
             accentColor = "#22c55e";
+            SoundManager.getInstance().playVictory();
         } else if (userGoals == opponentGoals) {
             resultText  = "DRAW";
             bgGradient  = "linear-gradient(to bottom, #023ea8, #0096c7, #023ea0)";
             accentColor = "#facc15";
+            SoundManager.getInstance().playDraw();
         } else {
             resultText  = "DEFEAT";
             bgGradient  = "linear-gradient(to bottom, #1a0202, #7f1d1d, #1a0202)";
             accentColor = "#ef4444";
-
+            SoundManager.getInstance().playGameOver();
         }
 
         StackPane root = new StackPane();
@@ -138,6 +141,7 @@ public class PostMatchController {
         Button btn = new Button("NEXT WEEK  →");
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.getStyleClass().add("btn-primary");
+        SoundManager.getInstance().wire(btn);
         btn.setFont(Font.font("Arial", FontWeight.BOLD, 15));
         btn.setOnAction(e -> {
             if (facade.isSeasonComplete()) {

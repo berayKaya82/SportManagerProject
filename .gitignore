@@ -31,3 +31,6 @@ bin/
 .DS_Store
 ### Maven ###
 target/
+
+### Sound source files (WAV too large for git) ###
+src/main/resources/sounds/*.wav

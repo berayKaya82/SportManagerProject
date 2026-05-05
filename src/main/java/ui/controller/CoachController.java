@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.List;
 
@@ -55,6 +56,7 @@ public class CoachController {
         Button backBtn = new Button("← Dashboard");
         backBtn.getStyleClass().addAll("btn", "btn-secondary");
         backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("dashboard", facade));
+        SoundManager.getInstance().wire(backBtn);
 
         header.getChildren().addAll(titleBlock, spacer, backBtn);
         return header;
@@ -226,6 +228,7 @@ public class CoachController {
             row.getChildren().addAll(nameBox, levelLabel, reqLabel, statsLabel, actionSpacer, activeLabel);
         } else if (available) {
             Button hireBtn = new Button("HIRE");
+            SoundManager.getInstance().wire(hireBtn);
             hireBtn.setStyle(
                 "-fx-background-color: #7c3aed;" +
                 "-fx-text-fill: white;" +

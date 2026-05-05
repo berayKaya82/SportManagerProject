@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class SeasonEndController {
     }
 
     public Parent getRoot() {
+        SoundManager.getInstance().playChampion();
         VBox root = new VBox();
         root.setStyle("-fx-background-color: linear-gradient(to bottom, #ff7b00, #ffe97f);");
 
@@ -224,6 +226,8 @@ public class SeasonEndController {
         exitBtn.getStyleClass().add("btn-red");
         exitBtn.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         exitBtn.setOnAction(e -> javafx.application.Platform.exit());
+
+        SoundManager.getInstance().wire(newSeasonBtn, saveExitBtn, exitBtn);
 
         HBox box = new HBox(14, newSeasonBtn, saveExitBtn, exitBtn);
         box.setAlignment(Pos.CENTER);

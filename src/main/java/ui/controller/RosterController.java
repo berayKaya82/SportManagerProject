@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javafx.util.StringConverter;
+import ui.SoundManager;
 
 public class RosterController {
 
@@ -62,6 +63,7 @@ public class RosterController {
         Button backBtn = new Button("← Dashboard");
         backBtn.getStyleClass().addAll("btn", "btn-secondary");
         backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("dashboard", facade));
+        SoundManager.getInstance().wire(backBtn);
 
         bar.getChildren().addAll(titleBlock, spacer, backBtn);
         return bar;
@@ -193,6 +195,7 @@ public class RosterController {
         Button swapBtn = new Button("Make Substitution");
         swapBtn.getStyleClass().addAll("btn", "btn-blue");
         swapBtn.setMaxWidth(Double.MAX_VALUE);
+        SoundManager.getInstance().wire(swapBtn);
         swapBtn.setOnAction(e -> {
             Player out = outBox.getValue();
             Player in  = inBox.getValue();

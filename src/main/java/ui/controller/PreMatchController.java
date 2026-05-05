@@ -16,6 +16,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import sport.ITactic;
 import ui.SceneManager;
+import ui.SoundManager;
 
 public class PreMatchController {
 
@@ -180,6 +181,7 @@ public class PreMatchController {
         Button btn = new Button("START MATCH  →");
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.getStyleClass().add("btn-primary");
+        SoundManager.getInstance().wire(btn);
         btn.setFont(Font.font("Arial", FontWeight.BOLD, 15));
         btn.setOnAction(e -> handleStartMatch());
         return btn;
