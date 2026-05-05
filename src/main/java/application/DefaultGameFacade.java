@@ -218,16 +218,12 @@ public class DefaultGameFacade implements GameFacade {
         for (Player p : userTeam.getStartingPlayers()) {
             p.setEnergy(100);
             p.setCondition(Math.min(100, p.getCondition() + 30));
-            if (p.getInjuryStatus() == InjuryStatus.INJURED) {
-                p.setInjuryStatus(InjuryStatus.HEALTHY);
-            }
+            p.clearInjury();
         }
         for (Player p : userTeam.getSubstitutes()) {
             p.setEnergy(100);
             p.setCondition(Math.min(100, p.getCondition() + 30));
-            if (p.getInjuryStatus() == InjuryStatus.INJURED) {
-                p.setInjuryStatus(InjuryStatus.HEALTHY);
-            }
+            p.clearInjury();
         }
     }
 
@@ -323,10 +319,10 @@ public class DefaultGameFacade implements GameFacade {
     private List<Coach> getCoachPool() {
         return List.of(
             new Coach("Ali Yilmaz",      1, 1, 0),
-            new Coach("Mehmet Demir",     2, 1, 15),
-            new Coach("Ayse Kara",        3, 2, 40),
-            new Coach("Fatma Celik",      4, 3, 80),
-            new Coach("Kemal Ozturk",     5, 4, 150)
+            new Coach("Mehmet Demir",     2, 1, 35),
+            new Coach("Ayse Kara",        3, 2, 75),
+            new Coach("Fatma Celik",      4, 3, 130),
+            new Coach("Kemal Ozturk",     5, 4, 220)
         );
     }
 
@@ -554,12 +550,11 @@ public class DefaultGameFacade implements GameFacade {
         int opponentGoals = isHome ? result.getAwayGoals() : result.getHomeGoals();
 
         if (teamGoals > opponentGoals) {
-            managerProfile.addReputation(10);
+            managerProfile.addReputation(4);
         } else if (teamGoals == opponentGoals) {
-            managerProfile.addReputation(3);
-        } else {
             managerProfile.addReputation(1);
         }
+        // No rep for loss — keeps coach unlock pace reasonable over a season
     }
 
     private void applyRelationshipChange(MatchResult result) {

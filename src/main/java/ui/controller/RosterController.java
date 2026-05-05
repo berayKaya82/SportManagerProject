@@ -15,6 +15,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import javafx.util.StringConverter;
+
 public class RosterController {
 
     private final GameFacade facade;
@@ -68,9 +74,9 @@ public class RosterController {
         columns.setPadding(new Insets(20));
 
         VBox startingCol = buildPlayerCard(
-            "STARTING XI", facade.getUserTeam().getStartingPlayers());
+            true, facade.getUserTeam().getStartingPlayers());
         VBox benchCol = buildPlayerCard(
-            "BENCH", facade.getUserTeam().getSubstitutes());
+            false, facade.getUserTeam().getSubstitutes());
 
         HBox.setHgrow(startingCol, Priority.ALWAYS);
         HBox.setHgrow(benchCol,    Priority.ALWAYS);
@@ -78,7 +84,10 @@ public class RosterController {
         return columns;
     }
 
-    private VBox buildPlayerCard(String header, java.util.List<Player> players) {
+    private VBox buildPlayerCard(boolean isStartersColumn, List<Player> players) {
+        String header = isStartersColumn ? "STARTING XI" : "BENCH";
+        List<Player> sorted = sortedForColumn(players, isStartersColumn);
+
         VBox card = new VBox(6);
         card.setPadding(new Insets(16));
         card.setStyle(
@@ -89,20 +98,21 @@ public class RosterController {
             "-fx-border-radius: 10;"
         );
 
-        Label headerLabel = new Label(header + "  (" + players.size() + ")");
+        Label headerLabel = new Label(header + "  (" + sorted.size() + ")");
         headerLabel.getStyleClass().add("section-header-green");
         card.getChildren().add(headerLabel);
 
-        for (Player p : players) {
+        for (Player p : sorted) {
             boolean injured = p.getInjuryStatus() == InjuryStatus.INJURED;
 
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setPadding(new Insets(4, 0, 4, 0));
 
-            Label name = new Label(p.getName());
-            name.getStyleClass().add(injured ? "player-row-injured" : "player-row");
-            name.setMinWidth(145);
+            Label name = new Label(p.getName() + (injured ? "  ● INJ" : ""));
+            name.setFont(Font.font("Arial", 13));
+            name.setTextFill(injured ? Color.web("#f87171") : Color.WHITE);
+            name.setMinWidth(155);
 
             Label energyLbl = new Label("E:" + p.getEnergy());
             energyLbl.setFont(Font.font("Courier New", 12));
@@ -114,17 +124,22 @@ public class RosterController {
             condLbl.setTextFill(Color.web("#6b7280"));
 
             row.getChildren().addAll(name, energyLbl, condLbl);
-
-            if (injured) {
-                Label injTag = new Label(" INJ");
-                injTag.setFont(Font.font("Arial", FontWeight.BOLD, 11));
-                injTag.setTextFill(Color.web("#ef4444"));
-                row.getChildren().add(injTag);
-            }
-
             card.getChildren().add(row);
         }
         return card;
+    }
+
+    /** Starters: injured first. Bench: healthy first (same as half-time substitution). */
+    private List<Player> sortedForColumn(List<Player> players, boolean startersColumn) {
+        List<Player> copy = new ArrayList<>(players);
+        if (startersColumn) {
+            copy.sort(Comparator.comparing((Player p) -> p.getInjuryStatus() != InjuryStatus.INJURED)
+                    .thenComparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
+        } else {
+            copy.sort(Comparator.comparing((Player p) -> p.getInjuryStatus() == InjuryStatus.INJURED)
+                    .thenComparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
+        }
+        return copy;
     }
 
     // ── Right panel (Tactic + Substitution) ──────────────────────────────────
@@ -162,14 +177,18 @@ public class RosterController {
         swapTitle.getStyleClass().add("section-header-yellow");
 
         ComboBox<Player> outBox = new ComboBox<>();
-        outBox.getItems().addAll(facade.getUserTeam().getStartingPlayers());
+        outBox.getItems().setAll(sortedStartersForSubstitutionOut());
         outBox.setPromptText("Player Out (starter)");
         outBox.setMaxWidth(Double.MAX_VALUE);
+        applyPlayerComboConverter(outBox);
+        styleInjuryAwareCombo(outBox);
 
         ComboBox<Player> inBox = new ComboBox<>();
-        inBox.getItems().addAll(facade.getUserTeam().getSubstitutes());
+        inBox.getItems().setAll(sortedSubsForSubstitutionIn());
         inBox.setPromptText("Player In (bench)");
         inBox.setMaxWidth(Double.MAX_VALUE);
+        applyPlayerComboConverter(inBox);
+        styleInjuryAwareCombo(inBox);
 
         Button swapBtn = new Button("Make Substitution");
         swapBtn.getStyleClass().addAll("btn", "btn-blue");
@@ -202,5 +221,49 @@ public class RosterController {
         if (energy >= 70) return Color.web("#4ade80");
         if (energy >= 40) return Color.web("#fbbf24");
         return Color.web("#ef4444");
+    }
+
+    private List<Player> sortedStartersForSubstitutionOut() {
+        List<Player> list = new ArrayList<>(facade.getUserTeam().getStartingPlayers());
+        list.sort(Comparator.comparing((Player p) -> p.getInjuryStatus() != InjuryStatus.INJURED)
+                .thenComparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
+        return list;
+    }
+
+    private List<Player> sortedSubsForSubstitutionIn() {
+        List<Player> list = new ArrayList<>(facade.getUserTeam().getSubstitutes());
+        list.sort(Comparator.comparing((Player p) -> p.getInjuryStatus() == InjuryStatus.INJURED)
+                .thenComparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
+        return list;
+    }
+
+    private void applyPlayerComboConverter(ComboBox<Player> combo) {
+        combo.setConverter(new StringConverter<>() {
+            @Override public String toString(Player p) {
+                if (p == null) return "";
+                boolean inj = p.getInjuryStatus() == InjuryStatus.INJURED;
+                return p.getName() + (inj ? "  ● INJ" : "");
+            }
+            @Override public Player fromString(String s) { return null; }
+        });
+    }
+
+    private void styleInjuryAwareCombo(ComboBox<Player> combo) {
+        javafx.util.Callback<ListView<Player>, ListCell<Player>> factory =
+                lv -> new ListCell<>() {
+                    @Override protected void updateItem(Player p, boolean empty) {
+                        super.updateItem(p, empty);
+                        if (empty || p == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            boolean inj = p.getInjuryStatus() == InjuryStatus.INJURED;
+                            setText(p.getName() + (inj ? "  ● INJ" : ""));
+                            setTextFill(inj ? Color.web("#f87171") : Color.WHITE);
+                        }
+                    }
+                };
+        combo.setCellFactory(factory);
+        combo.setButtonCell(factory.call(null));
     }
 }

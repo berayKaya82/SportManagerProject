@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.ListCell;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -17,6 +18,10 @@ import javafx.scene.text.FontWeight;
 import javafx.util.StringConverter;
 import sport.ITactic;
 import ui.SceneManager;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class HalfTimeController {
 
@@ -159,10 +164,13 @@ public class HalfTimeController {
         card.getChildren().add(sectionLabel("SUBSTITUTION"));
 
         outComboBox = buildPlayerComboBox("Player Out");
-        outComboBox.getItems().addAll(facade.getUserTeam().getStartingPlayers());
+        outComboBox.getItems().setAll(sortedStartersForOut());
 
         inComboBox = buildPlayerComboBox("Player In");
-        inComboBox.getItems().addAll(facade.getUserTeam().getSubstitutes());
+        inComboBox.getItems().setAll(sortedSubsForIn());
+
+        styleInjuryAwareCombo(outComboBox);
+        styleInjuryAwareCombo(inComboBox);
 
         Button subBtn = new Button("SUBSTITUTE");
         subBtn.getStyleClass().add("btn-orange");
@@ -202,8 +210,8 @@ public class HalfTimeController {
 
         try {
             facade.getUserTeam().substitutePlayer(out, in);
-            outComboBox.getItems().setAll(facade.getUserTeam().getStartingPlayers());
-            inComboBox.getItems().setAll(facade.getUserTeam().getSubstitutes());
+            outComboBox.getItems().setAll(sortedStartersForOut());
+            inComboBox.getItems().setAll(sortedSubsForIn());
             outComboBox.setValue(null);
             inComboBox.setValue(null);
             refreshSquadList();
@@ -327,5 +335,40 @@ public class HalfTimeController {
         l.setFont(Font.font("Arial", FontWeight.BOLD, 11));
         l.setTextFill(Color.web("#6b7280"));
         return l;
+    }
+
+    /** Injured starters first (easy to swap out), then alphabetical. */
+    private List<Player> sortedStartersForOut() {
+        List<Player> list = new ArrayList<>(facade.getUserTeam().getStartingPlayers());
+        list.sort(Comparator.comparing((Player p) -> p.getInjuryStatus() != InjuryStatus.INJURED)
+                .thenComparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
+        return list;
+    }
+
+    /** Healthy bench first for typical subs; injured bench at bottom, still styled red. */
+    private List<Player> sortedSubsForIn() {
+        List<Player> list = new ArrayList<>(facade.getUserTeam().getSubstitutes());
+        list.sort(Comparator.comparing((Player p) -> p.getInjuryStatus() == InjuryStatus.INJURED)
+                .thenComparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
+        return list;
+    }
+
+    private void styleInjuryAwareCombo(ComboBox<Player> combo) {
+        javafx.util.Callback<javafx.scene.control.ListView<Player>, ListCell<Player>> factory =
+                lv -> new ListCell<>() {
+                    @Override protected void updateItem(Player p, boolean empty) {
+                        super.updateItem(p, empty);
+                        if (empty || p == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            boolean inj = p.getInjuryStatus() == InjuryStatus.INJURED;
+                            setText(p.getName() + (inj ? "  ● INJ" : ""));
+                            setTextFill(inj ? Color.web("#f87171") : Color.WHITE);
+                        }
+                    }
+                };
+        combo.setCellFactory(factory);
+        combo.setButtonCell(factory.call(null));
     }
 }

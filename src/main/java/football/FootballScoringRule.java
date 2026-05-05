@@ -39,14 +39,14 @@ public class FootballScoringRule implements ScoringRule {
         return new MatchResult(homeGoals , awayGoals);
 }
  private int calculateGoals(Team attackingTeam,Team defendingTeam , boolean isHome,boolean isHalf){
-       int score;
+        int score;
         if(isHalf){
-            score =random.nextInt(2)+random.nextInt(2);
+            score = random.nextInt(2);
         }else{
-            score=random.nextInt(4)+random.nextInt(4);
+            score=random.nextInt(2)+random.nextInt(3);
         }
         if(isHome){
-            score +=1;//home advantage
+            score +=1;
         }
         PlayStyle attackingStyle = attackingTeam.getTactic().getPlayStyle();
         PlayStyle defendingStyle = defendingTeam.getTactic().getPlayStyle();
@@ -75,14 +75,14 @@ public class FootballScoringRule implements ScoringRule {
  }
  private int getEnergyBonus(Team team){
         double avgEnergy = getAverageEnergy(team);
-        if(avgEnergy >= 80)return 1;
-        if(avgEnergy <= 50)return -1;
+        if(avgEnergy >= 85)return 1;
+        if(avgEnergy <= 45)return -1;
         return 0;
  }
  private int getConditionBonus(Team team){
         double avgCondition=getAverageCondition(team);
-        if(avgCondition >= 80)return 1;
-        if(avgCondition <= 50)return -1;
+        if(avgCondition >= 85)return 1;
+        if(avgCondition <= 45)return -1;
         return 0;
  }
  private double getAverageEnergy(Team team){
