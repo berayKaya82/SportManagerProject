@@ -1,6 +1,7 @@
 module sportsmanager {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.media;
     requires com.google.gson;
 
     opens application to javafx.fxml, com.google.gson;

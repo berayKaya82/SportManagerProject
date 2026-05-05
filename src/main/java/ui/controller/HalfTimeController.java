@@ -18,6 +18,7 @@ import javafx.scene.text.FontWeight;
 import javafx.util.StringConverter;
 import sport.ITactic;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -174,6 +175,7 @@ public class HalfTimeController {
 
         Button subBtn = new Button("SUBSTITUTE");
         subBtn.getStyleClass().add("btn-orange");
+        SoundManager.getInstance().wire(subBtn);
         subBtn.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         subBtn.setOnAction(e -> handleSubstitution());
 
@@ -304,6 +306,7 @@ public class HalfTimeController {
         btn.getStyleClass().add("btn-primary");
         btn.setFont(Font.font("Arial", FontWeight.BOLD, 15));
         btn.setOnAction(e -> handleContinue());
+        SoundManager.getInstance().wire(btn);
         return btn;
     }
 

@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.function.Function;
 
@@ -60,6 +61,7 @@ public class StandingsController {
 
         Button backBtn = new Button("← BACK TO DASHBOARD");
         backBtn.getStyleClass().add("btn-secondary");
+        SoundManager.getInstance().wire(backBtn);
         backBtn.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("dashboard", facade));
 

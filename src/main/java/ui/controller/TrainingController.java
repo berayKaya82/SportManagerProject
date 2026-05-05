@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 public class TrainingController {
 
@@ -55,6 +56,7 @@ public class TrainingController {
         Button backBtn = new Button("← Dashboard");
         backBtn.getStyleClass().addAll("btn", "btn-secondary");
         backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("dashboard", facade));
+        SoundManager.getInstance().wire(backBtn);
 
         header.getChildren().addAll(titleBlock, spacer, backBtn);
         return header;
@@ -104,6 +106,7 @@ public class TrainingController {
         // Start week button
         Button doneBtn = new Button("Done — Start Week →");
         doneBtn.getStyleClass().addAll("btn", "btn-primary");
+        SoundManager.getInstance().wire(doneBtn);
         doneBtn.setOnAction(e -> {
             facade.applyWeeklyRecovery();
             facade.applyTraining(selectedIntensity);

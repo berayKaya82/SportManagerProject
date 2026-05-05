@@ -3,7 +3,6 @@ package ui.controller;
 import application.GameFacade;
 import domain.Gender;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -12,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import sport.ISport;
 import ui.SceneManager;
+import ui.SoundManager;
 
 public class GameStartController {
 
@@ -67,6 +67,7 @@ public class GameStartController {
         Button backBtn = new Button("← Main Menu");
         backBtn.getStyleClass().addAll("btn", "btn-secondary");
         backBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
+        SoundManager.getInstance().wire(backBtn);
 
         header.getChildren().addAll(titleBlock, spacer, backBtn);
         return header;
@@ -108,6 +109,7 @@ public class GameStartController {
         Button startBtn = new Button("Start Game →");
         startBtn.getStyleClass().addAll("btn", "btn-primary");
         startBtn.setMaxWidth(Double.MAX_VALUE);
+        SoundManager.getInstance().wire(startBtn);
         startBtn.setOnAction(e -> {
             String managerName = managerField.getText().trim();
             String teamName    = teamField.getText().trim();

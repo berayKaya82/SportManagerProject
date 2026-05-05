@@ -16,7 +16,9 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
+import javafx.application.Platform;
 import ui.SceneManager;
+import ui.SoundManager;
 
 public class VsScreenController {
 
@@ -78,6 +80,9 @@ public class VsScreenController {
         kickFade.setToValue(1);
 
         SequentialTransition full = new SequentialTransition(wingsIn, kickFade);
+
+        Platform.runLater(() -> SoundManager.getInstance().playMatchStart());
+        SoundManager.getInstance().wire(kick);
 
         final boolean[] played = {false};
         root.layoutBoundsProperty().addListener((obs, oldVal, bounds) -> {

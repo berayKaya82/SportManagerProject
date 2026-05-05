@@ -10,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import ui.SceneManager;
+import ui.SoundManager;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,6 +98,7 @@ public class MainMenuController {
         btn.getStyleClass().addAll("btn", styleClass);
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        SoundManager.getInstance().wire(btn);
         return btn;
     }
 }
