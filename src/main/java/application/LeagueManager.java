@@ -20,9 +20,6 @@ public class LeagueManager {
     // Auto-increment team ID
     private int nextTeamId = 1;
 
-    // Total teams in a league
-    private static final int TOTAL_TEAMS = 18;
-
     public LeagueManager(TeamGenerator teamGenerator, PlayerGenerator playerGenerator) {
         if (teamGenerator == null)
             throw new IllegalArgumentException("TeamGenerator cannot be null");
@@ -64,7 +61,8 @@ public class LeagueManager {
         List<Team> teams = new ArrayList<>();
         teams.add(userTeam);
 
-        for (int i = 0; i < TOTAL_TEAMS - 1; i++) {
+        int totalTeams = sport.getTeamCount();
+        for (int i = 0; i < totalTeams - 1; i++) {
             Team aiTeam = teamGenerator.createRandomTeam(nextTeamId++, gender, sport);
             teams.add(aiTeam);
         }
@@ -84,8 +82,9 @@ public class LeagueManager {
             throw new IllegalArgumentException("Team name cannot be empty");
         if (gender == null || sport == null)
             throw new IllegalArgumentException("Gender and sport cannot be null");
-        if (aiTeamNames == null || aiTeamNames.size() != TOTAL_TEAMS - 1)
-            throw new IllegalArgumentException("Must provide exactly " + (TOTAL_TEAMS - 1) + " AI team names");
+        int totalTeams = sport.getTeamCount();
+        if (aiTeamNames == null || aiTeamNames.size() != totalTeams - 1)
+            throw new IllegalArgumentException("Must provide exactly " + (totalTeams - 1) + " AI team names");
 
         String sportKey = sport.getSportName();
         leagues.computeIfAbsent(gender, g -> new HashMap<>()).remove(sportKey);

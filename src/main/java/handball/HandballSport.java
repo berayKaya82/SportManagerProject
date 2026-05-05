@@ -47,4 +47,10 @@ public class HandballSport implements ISport {
 
     @Override
     public ITactic getDefaultTactic() { return new HandballTactic(PlayStyle.BALANCED); }
+
+    @Override
+    public int getTeamCount() { return 12; }
+
+    @Override
+    public boolean isDoubleRoundRobin() { return true; }
 }
