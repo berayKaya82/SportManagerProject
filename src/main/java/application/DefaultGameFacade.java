@@ -431,7 +431,7 @@ public class DefaultGameFacade implements GameFacade {
 
         this.leagueManager = new LeagueManager(teamGenerator, playerGenerator);
         League league;
-        if (state.getAiTeamNames() != null && state.getAiTeamNames().size() == 17) {
+        if (state.getAiTeamNames() != null && state.getAiTeamNames().size() == loadedSport.getTeamCount() - 1) {
             league = leagueManager.createLeagueWithNamedTeams(
                     state.getTeamName(), gender, loadedSport, state.getAiTeamNames());
         } else {

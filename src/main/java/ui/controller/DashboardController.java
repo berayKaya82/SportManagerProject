@@ -305,22 +305,12 @@ public class DashboardController {
         });
         mainMenuBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
 
-        // Upper button stack — when the panel can't fit every button, this section
-        // becomes scrollable so Main Menu (anchored below) is never pushed off-screen.
         VBox upperButtons = new VBox(10);
         upperButtons.setAlignment(Pos.TOP_CENTER);
         upperButtons.getChildren().addAll(trainingBtn, rosterBtn, coachBtn, standBtn, saveBtn);
+        VBox.setVgrow(upperButtons, Priority.ALWAYS);
 
-        ScrollPane upperScroll = new ScrollPane(upperButtons);
-        upperScroll.setFitToWidth(true);
-        upperScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        upperScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        upperScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        upperScroll.setMinHeight(0);
-        // Take all leftover vertical space so Main Menu sits at the bottom edge.
-        VBox.setVgrow(upperScroll, Priority.ALWAYS);
-
-        panel.getChildren().addAll(navTitle, upperScroll, mainMenuBtn);
+        panel.getChildren().addAll(navTitle, upperButtons, mainMenuBtn);
         return panel;
     }
 
