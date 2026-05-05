@@ -18,7 +18,7 @@ public class Fixture {
     // Generates a full home & away schedule automatically.
     // Each team plays every other team exactly twice (home + away).
 
-    public static Fixture generate(List<Team> teams) {
+    public static Fixture generate(List<Team> teams, boolean doubleRoundRobin) {
         if (teams == null || teams.size() < 2)
             throw new IllegalArgumentException("Need at least 2 teams to generate a fixture");
 
@@ -62,22 +62,25 @@ public class Fixture {
         }
 
         // --- Second leg (reverse fixtures, home/away swapped) ---
-        // Also shuffle the order of second leg weeks for variety
-        List<Integer> secondLegOrder = new ArrayList<>();
-        for (int i = 0; i < numRounds; i++) secondLegOrder.add(i);
-        Collections.shuffle(secondLegOrder);
+        // Only generated when the sport uses a double round-robin format.
+        if (doubleRoundRobin) {
+            // Also shuffle the order of second leg weeks for variety
+            List<Integer> secondLegOrder = new ArrayList<>();
+            for (int i = 0; i < numRounds; i++) secondLegOrder.add(i);
+            Collections.shuffle(secondLegOrder);
 
-        for (int i = 0; i < numRounds; i++) {
-            int sourceRound = secondLegOrder.get(i);
-            MatchWeek firstLegWeek = fixture.getWeek(sourceRound + 1);
-            MatchWeek week = new MatchWeek(numRounds + i + 1);
+            for (int i = 0; i < numRounds; i++) {
+                int sourceRound = secondLegOrder.get(i);
+                MatchWeek firstLegWeek = fixture.getWeek(sourceRound + 1);
+                MatchWeek week = new MatchWeek(numRounds + i + 1);
 
-            // Reverse home/away from the corresponding first leg week
-            for (Match m : firstLegWeek.getMatches()) {
-                week.addMatch(new Match(m.getAwayTeam(), m.getHomeTeam()));
+                // Reverse home/away from the corresponding first leg week
+                for (Match m : firstLegWeek.getMatches()) {
+                    week.addMatch(new Match(m.getAwayTeam(), m.getHomeTeam()));
+                }
+
+                fixture.addWeek(week);
             }
-
-            fixture.addWeek(week);
         }
 
         return fixture;

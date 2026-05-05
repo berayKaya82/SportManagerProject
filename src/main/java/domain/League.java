@@ -39,7 +39,7 @@ public class League {
 
     public void generateFixture() {
         checkFixtureReady(false);
-        this.fixture = Fixture.generate(teams);
+        this.fixture = Fixture.generate(teams, sport.isDoubleRoundRobin());
     }
 
     public void registerTeamsToTable() {

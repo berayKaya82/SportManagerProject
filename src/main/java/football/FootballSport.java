@@ -55,4 +55,10 @@ public class FootballSport implements ISport {
 
     @Override
     public ITactic getDefaultTactic() { return new FootballTactic(PlayStyle.BALANCED); }
+
+    @Override
+    public int getTeamCount() { return 18; }
+
+    @Override
+    public boolean isDoubleRoundRobin() { return true; }
 }

@@ -8,4 +8,6 @@ public interface ISport {
     ScoringRule getScoringRule();
     TieBreakerRule getTieBreakerRule();
     ITactic getDefaultTactic();
+    int getTeamCount();
+    boolean isDoubleRoundRobin();
 }
