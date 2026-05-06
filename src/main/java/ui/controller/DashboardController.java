@@ -281,8 +281,9 @@ public class DashboardController {
         Button rosterBtn   = navBtn("Squad",     "nav-btn-blue");
         Button coachBtn    = navBtn("Coach",     "nav-btn-red");
         Button standBtn    = navBtn("Standings", "nav-btn-purple");
-        Button saveBtn     = navBtn("Save Game", "nav-btn-gray");
-        Button mainMenuBtn = navBtn("Main Menu", "nav-btn-gray");
+        Button saveBtn     = navBtn("Save Game",    "nav-btn-gray");
+        Button deleteBtn   = navBtn("Delete Save",  "nav-btn-gray");
+        Button mainMenuBtn = navBtn("Main Menu",    "nav-btn-gray");
 
         trainingBtn.setOnAction(e -> SceneManager.getInstance().switchTo("training",  facade));
         rosterBtn.setOnAction(e   -> SceneManager.getInstance().switchTo("roster",    facade));
@@ -304,11 +305,12 @@ public class DashboardController {
                 }
             });
         });
+        deleteBtn.setOnAction(e -> SaveSlotDialogs.promptDeleteSave(facade));
         mainMenuBtn.setOnAction(e -> SceneManager.getInstance().switchTo("main-menu", facade));
 
         VBox upperButtons = new VBox(10);
         upperButtons.setAlignment(Pos.TOP_CENTER);
-        upperButtons.getChildren().addAll(trainingBtn, rosterBtn, coachBtn, standBtn, saveBtn);
+        upperButtons.getChildren().addAll(trainingBtn, rosterBtn, coachBtn, standBtn, saveBtn, deleteBtn);
         VBox.setVgrow(upperButtons, Priority.ALWAYS);
 
         panel.getChildren().addAll(navTitle, upperButtons, mainMenuBtn);

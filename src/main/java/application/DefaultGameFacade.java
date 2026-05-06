@@ -128,6 +128,16 @@ public class DefaultGameFacade implements GameFacade {
     }
 
     @Override
+    public String getStartingLineupHeader() {
+        ensureGameStarted();
+        int n = sport.getRosterRule().getStartingPlayerCount();
+        if (n == 11) {
+            return "STARTING XI";
+        }
+        return "STARTING " + n;
+    }
+
+    @Override
     public MatchResult getCurrentPeriodResult() {
         if (currentPeriodResult == null)
             throw new IllegalStateException("No period played yet.");
@@ -353,6 +363,16 @@ public class DefaultGameFacade implements GameFacade {
     }
 
     @Override
+    public void deleteSaveGame(int slotId) {
+        SaveLoadManager saveLoadManager = new SaveLoadManager();
+        try {
+            saveLoadManager.deleteSave(slotId);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete save: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public List<String> getSaveSlotInfo() {
         return new SaveLoadManager().getSaveSlotInfo();
     }
@@ -461,6 +481,10 @@ public class DefaultGameFacade implements GameFacade {
 
         restorePlayers(userTeam, state.getStarters(), state.getSubstitutes());
 
+        if (state.isSeasonComplete()) {
+            applyOffSeasonRecovery();
+        }
+
         if (state.getCoachName() != null) {
             userTeam.setCoach(new Coach(state.getCoachName(), state.getCoachLevel(),
                     state.getCoachRequiredSeason(), state.getCoachRequiredReputation()));
@@ -520,8 +544,8 @@ public class DefaultGameFacade implements GameFacade {
         player.setEnergy(Math.max(0, Math.min(100, data.energy)));
         player.setCondition(Math.max(0, Math.min(100, data.condition)));
         player.setInjuryRisk(Math.max(0, Math.min(100, data.injuryRisk)));
-        player.setInjuryStatus(InjuryStatus.valueOf(data.injuryStatus));
-        if (data.injuredGamesRemaining > 0) {
+        player.clearInjury();
+        if (InjuryStatus.INJURED.name().equals(data.injuryStatus) && data.injuredGamesRemaining > 0) {
             player.injure(data.injuredGamesRemaining);
         }
     }

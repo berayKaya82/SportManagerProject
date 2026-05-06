@@ -43,6 +43,12 @@ public class SaveLoadManager {
         return Files.exists(saveDirectory.resolve("slot_" + slotId + ".json"));
     }
 
+    public boolean deleteSave(int slotId) throws IOException {
+        validateSlotId(slotId);
+        Path file = saveDirectory.resolve("slot_" + slotId + ".json");
+        return Files.deleteIfExists(file);
+    }
+
     public List<String> getSaveSlotInfo() {
         List<String> info = new ArrayList<>();
         for (int i = 1; i <= MAX_SLOTS; i++) {
