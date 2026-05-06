@@ -52,16 +52,19 @@ public class TeamGenerator {
 
         // Generate players based on sport rules
         int startingCount = sport.getRosterRule().getStartingPlayerCount();
+        int subCount = 7;
 
         if (startingCount <= 0)
             throw new IllegalStateException("Invalid roster size from sport");
 
-        List<Player> starters =
-                playerGenerator.generatePlayersByGender(startingCount, gender);
+        List<Player> roster =
+                playerGenerator.generateUniquePlayersByGender(startingCount + subCount, gender);
 
-        // Assign players to team
-        for (Player p : starters) {
-            team.addStartingPlayer(p);
+        for (int i = 0; i < startingCount; i++) {
+            team.addStartingPlayer(roster.get(i));
+        }
+        for (int i = startingCount; i < roster.size(); i++) {
+            team.addSubstitute(roster.get(i));
         }
         // Assign coach
         team.setCoach(generateCoach());
@@ -108,9 +111,14 @@ public class TeamGenerator {
 
         Team team = new Team(id, name, gender);
         int startingCount = sport.getRosterRule().getStartingPlayerCount();
-        List<Player> starters = playerGenerator.generatePlayersByGender(startingCount, gender);
-        for (Player p : starters) {
-            team.addStartingPlayer(p);
+        int subCount = 7;
+        List<Player> roster =
+                playerGenerator.generateUniquePlayersByGender(startingCount + subCount, gender);
+        for (int i = 0; i < startingCount; i++) {
+            team.addStartingPlayer(roster.get(i));
+        }
+        for (int i = startingCount; i < roster.size(); i++) {
+            team.addSubstitute(roster.get(i));
         }
         team.setCoach(generateCoach());
         team.setTactic(generateDefaultTactic());

@@ -69,7 +69,7 @@ public class RosterController {
         return bar;
     }
 
-    // ── Player columns (Starting XI | Bench) ──────────────────────────────────
+    // ── Player columns (Starting lineup | Bench) ────────────────────────────────
 
     private HBox buildColumns() {
         HBox columns = new HBox(16);
@@ -87,7 +87,7 @@ public class RosterController {
     }
 
     private VBox buildPlayerCard(boolean isStartersColumn, List<Player> players) {
-        String header = isStartersColumn ? "STARTING XI" : "BENCH";
+        String header = isStartersColumn ? facade.getStartingLineupHeader() : "BENCH";
         List<Player> sorted = sortedForColumn(players, isStartersColumn);
 
         VBox card = new VBox(6);

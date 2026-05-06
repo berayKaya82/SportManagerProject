@@ -167,7 +167,7 @@ public class TrainingController {
             "-fx-border-radius: 10;"
         );
 
-        Label header = new Label("STARTING XI — CURRENT STATUS");
+        Label header = new Label(facade.getStartingLineupHeader() + " — CURRENT STATUS");
         header.getStyleClass().add("section-header-green");
         card.getChildren().add(header);
 

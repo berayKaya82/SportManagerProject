@@ -63,6 +63,9 @@ public interface GameFacade {
     // Returns how many periods the current sport has
     int getNumberOfPeriods();
 
+    /** UI label for the starting lineup (e.g. football "STARTING XI", handball "STARTING 7"). */
+    String getStartingLineupHeader();
+
     // Returns the cumulative result after the last played period
     MatchResult getCurrentPeriodResult();
 
@@ -106,5 +109,7 @@ public interface GameFacade {
     // --- Save / Load ---
     void saveGame(int slotId);
     void loadGame(int slotId);
+    void deleteSaveGame(int slotId);
+
     List<String> getSaveSlotInfo();
 }

@@ -47,9 +47,10 @@ public class MainMenuController {
         titleBlock.getChildren().addAll(title, subtitle);
 
         // Buttons
-        Button newGameBtn  = buildMenuButton("New Game",        "btn-primary");
-        Button loadGameBtn = buildMenuButton("Load Saved Game", "btn-secondary");
-        Button exitBtn     = buildMenuButton("Exit",            "btn-red");
+        Button newGameBtn     = buildMenuButton("New Game",         "btn-primary");
+        Button loadGameBtn    = buildMenuButton("Load Saved Game",  "btn-secondary");
+        Button deleteSaveBtn  = buildMenuButton("Delete Save Slot", "btn-secondary");
+        Button exitBtn        = buildMenuButton("Exit",             "btn-red");
 
         newGameBtn.setOnAction(e ->
                 SceneManager.getInstance().switchTo("new-game", facade));
@@ -76,6 +77,7 @@ public class MainMenuController {
                 }
             });
         });
+        deleteSaveBtn.setOnAction(e -> SaveSlotDialogs.promptDeleteSave(facade));
         exitBtn.setOnAction(e ->
                 javafx.application.Platform.exit());
 
@@ -88,7 +90,7 @@ public class MainMenuController {
         versionBlock.setAlignment(Pos.CENTER);
         versionBlock.setPadding(new Insets(40, 0, 0, 0));
 
-        content.getChildren().addAll(titleBlock, newGameBtn, loadGameBtn, exitBtn, versionBlock);
+        content.getChildren().addAll(titleBlock, newGameBtn, loadGameBtn, deleteSaveBtn, exitBtn, versionBlock);
         root.getChildren().add(content);
         return root;
     }

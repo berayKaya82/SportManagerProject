@@ -116,7 +116,7 @@ public class PreMatchController {
 
         VBox playerList = new VBox(5);
 
-        Label startersHeader = new Label("STARTING XI");
+        Label startersHeader = new Label(facade.getStartingLineupHeader());
         startersHeader.setFont(Font.font("Arial", FontWeight.BOLD, 11));
         startersHeader.setTextFill(Color.web("#4ade80"));
         playerList.getChildren().add(startersHeader);
