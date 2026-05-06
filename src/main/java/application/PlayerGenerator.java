@@ -4,8 +4,11 @@ import domain.Gender;
 import domain.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Responsible for creating Player objects with random or custom values.
@@ -48,13 +51,47 @@ public class PlayerGenerator {
         if (count <= 0)
             throw new IllegalArgumentException("Count must be positive");
 
-        List<Player> players = new ArrayList<>();
+        return generateUniquePlayersByGender(count, gender);
+    }
 
-        for (int i = 0; i < count; i++) {
-            players.add(generatePlayerByGender(gender));
+    /**
+     * Same pool as {@link #generatePlayerByGender(Gender)} but no duplicate names within this batch
+     * (starters + bench must not share the same display name).
+     */
+    public List<Player> generateUniquePlayersByGender(int totalCount, Gender gender) {
+        if (gender == null)
+            throw new IllegalArgumentException("Gender cannot be null");
+        if (totalCount <= 0)
+            throw new IllegalArgumentException("Count must be positive");
+
+        List<String> poolCopy = new ArrayList<>(
+                gender == Gender.MALE ? NamePool.MALE_NAMES : NamePool.FEMALE_NAMES);
+        Collections.shuffle(poolCopy, random);
+
+        List<Player> out = new ArrayList<>(totalCount);
+        Set<String> used = new HashSet<>();
+        int poolIdx = 0;
+        int serial = 0;
+
+        while (out.size() < totalCount) {
+            String name;
+            if (poolIdx < poolCopy.size()) {
+                name = poolCopy.get(poolIdx++);
+            } else {
+                String base = poolCopy.get(random.nextInt(poolCopy.size()));
+                do {
+                    serial++;
+                    name = base + " " + serial;
+                } while (used.contains(name));
+            }
+
+            if (!used.add(name)) {
+                continue;
+            }
+            out.add(rollNewPlayer(gender, name));
         }
 
-        return players;
+        return out;
     }
 
     /**
@@ -98,6 +135,10 @@ public class PlayerGenerator {
                 gender == Gender.MALE ? NamePool.MALE_NAMES : NamePool.FEMALE_NAMES;
 
         String name = pool.get(random.nextInt(pool.size()));
+        return rollNewPlayer(gender, name);
+    }
+
+    private Player rollNewPlayer(Gender gender, String name) {
         int age = randomBetween(MIN_AGE, MAX_AGE);
 
         return playerManager.createPlayer(

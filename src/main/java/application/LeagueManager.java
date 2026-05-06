@@ -44,15 +44,13 @@ public class LeagueManager {
         Team userTeam = new Team(userTeamId, teamName, gender);
 
         int startingCount = sport.getRosterRule().getStartingPlayerCount();
-        List<Player> starters = playerGenerator.generatePlayersByGender(startingCount, gender);
-        for (Player p : starters) {
-            userTeam.addStartingPlayer(p);
-        }
-
         int subCount = 7;
-        List<Player> subs = playerGenerator.generatePlayersByGender(subCount, gender);
-        for (Player p : subs) {
-            userTeam.addSubstitute(p);
+        List<Player> roster = playerGenerator.generateUniquePlayersByGender(startingCount + subCount, gender);
+        for (int i = 0; i < startingCount; i++) {
+            userTeam.addStartingPlayer(roster.get(i));
+        }
+        for (int i = startingCount; i < roster.size(); i++) {
+            userTeam.addSubstitute(roster.get(i));
         }
 
         userTeam.setCoach(new Coach("Ali Yilmaz", 1, 1, 0));
@@ -93,12 +91,14 @@ public class LeagueManager {
         Team userTeam = new Team(userTeamId, teamName, gender);
 
         int startingCount = sport.getRosterRule().getStartingPlayerCount();
-        List<Player> starters = playerGenerator.generatePlayersByGender(startingCount, gender);
-        for (Player p : starters) userTeam.addStartingPlayer(p);
-
         int subCount = 7;
-        List<Player> subs = playerGenerator.generatePlayersByGender(subCount, gender);
-        for (Player p : subs) userTeam.addSubstitute(p);
+        List<Player> roster = playerGenerator.generateUniquePlayersByGender(startingCount + subCount, gender);
+        for (int i = 0; i < startingCount; i++) {
+            userTeam.addStartingPlayer(roster.get(i));
+        }
+        for (int i = startingCount; i < roster.size(); i++) {
+            userTeam.addSubstitute(roster.get(i));
+        }
 
         userTeam.setCoach(new Coach("Ali Yilmaz", 1, 1, 0));
         userTeam.setTactic(sport.getDefaultTactic());
