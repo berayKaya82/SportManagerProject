@@ -9,7 +9,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import sport.ISport;
 import ui.SceneManager;
 import ui.SoundManager;
 
@@ -84,8 +83,8 @@ public class GameStartController {
         teamField.setMaxWidth(Double.MAX_VALUE);
 
         ComboBox<String> sportBox = new ComboBox<>();
-        sportBox.getItems().addAll("FOOTBALL", "HANDBALL");
-        sportBox.setValue("FOOTBALL");
+        sportBox.getItems().addAll(facade.getAvailableSportNames());
+        sportBox.setValue(sportBox.getItems().get(0));
         sportBox.setMaxWidth(Double.MAX_VALUE);
         // Don't let the popup's content widen the control's preferred size.
         sportBox.setMinWidth(0);
@@ -120,11 +119,7 @@ public class GameStartController {
                 return;
             }
 
-            ISport sport = sportBox.getValue().equals("HANDBALL")
-                    ? new handball.HandballSport()
-                    : new football.FootballSport();
-
-            facade.startNewGame(managerName, teamName, gender, sport);
+            facade.startNewGame(managerName, teamName, gender, sportBox.getValue());
             SceneManager.getInstance().switchTo("dashboard", facade);
         });
 

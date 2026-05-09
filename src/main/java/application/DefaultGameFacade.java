@@ -10,8 +10,24 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class DefaultGameFacade implements GameFacade {
+
+    private static final Map<String, Supplier<ISport>> SPORT_REGISTRY = new LinkedHashMap<>();
+    static {
+        SPORT_REGISTRY.put("FOOTBALL", FootballSport::new);
+        SPORT_REGISTRY.put("HANDBALL", HandballSport::new);
+    }
+
+    private static ISport createSport(String sportName) {
+        Supplier<ISport> supplier = SPORT_REGISTRY.entrySet().stream()
+                .filter(e -> e.getKey().equalsIgnoreCase(sportName))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown sport: " + sportName));
+        return supplier.get();
+    }
 
     private ManagerProfile managerProfile;
     private ISport sport;
@@ -46,10 +62,15 @@ public class DefaultGameFacade implements GameFacade {
     }
 
     @Override
-    public void startNewGame(String managerName, String teamName, Gender gender, ISport sport) {
+    public List<String> getAvailableSportNames() {
+        return new ArrayList<>(SPORT_REGISTRY.keySet());
+    }
+
+    @Override
+    public void startNewGame(String managerName, String teamName, Gender gender, String sportName) {
         // Create manager profile and store selected sport
         this.managerProfile = new ManagerProfile(managerName, 0, 1);
-        this.sport = sport;
+        this.sport = createSport(sportName);
 
         // Create league including user team and AI teams
         League league = leagueManager.createLeagueWithUserTeam(teamName, gender, sport);
@@ -443,8 +464,7 @@ public class DefaultGameFacade implements GameFacade {
         this.managerProfile = new ManagerProfile(
                 state.getManagerName(), state.getReputation(), state.getSeasonNumber());
 
-        ISport loadedSport = "Handball".equalsIgnoreCase(state.getSportName())
-                ? new HandballSport() : new FootballSport();
+        ISport loadedSport = createSport(state.getSportName());
         this.sport = loadedSport;
 
         Gender gender = Gender.valueOf(state.getGenderName());
