@@ -9,8 +9,8 @@ import java.util.List;
 public interface GameFacade {
 
     // --- Initialization ---
-    // Starts a new game and initializes all core systems (league, team, managers)
-    void startNewGame(String managerName, String teamName, Gender gender, ISport sport);
+    List<String> getAvailableSportNames();
+    void startNewGame(String managerName, String teamName, Gender gender, String sportName);
 
     // --- Profile & Team ---
     // Returns current manager profile

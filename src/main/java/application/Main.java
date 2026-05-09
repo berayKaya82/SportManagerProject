@@ -1,9 +1,7 @@
 package application;
 
 import domain.*;
-import football.FootballSport;
 import football.FootballTactic;
-import sport.ISport;
 
 import java.util.List;
 
@@ -15,14 +13,13 @@ public class Main {
     public static void main(String[] args) {
 
         GameFacade game = new DefaultGameFacade();
-        ISport football = new FootballSport();
 
         // --- 1. Start a new game ---
         System.out.println(DIVIDER);
         System.out.println("       SPORTS MANAGER - SEASON SIMULATION");
         System.out.println(DIVIDER);
 
-        game.startNewGame("Ahmet", "Eagles FC", Gender.MALE, football);
+        game.startNewGame("Ahmet", "Eagles FC", Gender.MALE, "FOOTBALL");
 
         ManagerProfile manager = game.getManagerProfile();
         Team userTeam = game.getUserTeam();

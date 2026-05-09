@@ -19,7 +19,7 @@ public class App extends Application {
 
         if (DEBUG_SKIP_TO_WEEK) {
             DefaultGameFacade df = (DefaultGameFacade) facade;
-            df.startNewGame("Debug", "TestFC", domain.Gender.MALE, new football.FootballSport());
+            df.startNewGame("Debug", "TestFC", domain.Gender.MALE, "FOOTBALL");
             df.debugSimulateWeeks(DEBUG_TARGET_WEEK - 1);
             SceneManager.getInstance().switchTo("dashboard", facade);
         } else {
