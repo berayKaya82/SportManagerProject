@@ -5,6 +5,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -12,10 +14,13 @@ import javafx.scene.text.FontWeight;
 import ui.SceneManager;
 import ui.SoundManager;
 
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MainMenuController {
+
+    private static final double LOGO_FIT_WIDTH = 380;   // px, target range 360–420
 
     private final GameFacade facade;
 
@@ -27,33 +32,80 @@ public class MainMenuController {
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: #0a0e1a;");
 
-        VBox content = new VBox(12);
-        content.setAlignment(Pos.CENTER);
-        content.setMaxWidth(320);
+        // ─────────────────────────────────────────────────────────────
+        // Two-column responsive layout: an HBox holds two equal-growing
+        // VBox children. Each child centers its own content vertically
+        // and horizontally within its half of the window. With both
+        // children flagged Hgrow=ALWAYS, the split stays 50/50 on resize
+        // without any width bindings.
+        // ─────────────────────────────────────────────────────────────
+        HBox columns = new HBox();
+        columns.setAlignment(Pos.CENTER);
 
-        // Title block
-        VBox titleBlock = new VBox(6);
-        titleBlock.setAlignment(Pos.CENTER);
-        titleBlock.setPadding(new Insets(0, 0, 32, 0));
+        VBox leftPanel  = buildLeftPanel();
+        VBox rightPanel = buildRightPanel();
 
-        Label title = new Label("SPORTS MANAGER");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 36));
-        title.setTextFill(Color.WHITE);
+        HBox.setHgrow(leftPanel,  Priority.ALWAYS);
+        HBox.setHgrow(rightPanel, Priority.ALWAYS);
 
-        Label subtitle = new Label("Pro Edition");
-        subtitle.setFont(Font.font("Arial", 14));
-        subtitle.setTextFill(Color.web("#22c55e"));
+        columns.getChildren().addAll(leftPanel, rightPanel);
+        root.getChildren().add(columns);
+        return root;
+    }
 
-        titleBlock.getChildren().addAll(title, subtitle);
+    // ───────────────────────── LEFT: logo ─────────────────────────
+    private VBox buildLeftPanel() {
+        VBox panel = new VBox();
+        panel.setAlignment(Pos.CENTER);
+        panel.setMaxWidth(Double.MAX_VALUE);
+        panel.setPadding(new Insets(40));
 
-        // Buttons
-        Button newGameBtn     = buildMenuButton("New Game",         "btn-primary");
-        Button loadGameBtn    = buildMenuButton("Load Saved Game",  "btn-secondary");
-        Button deleteSaveBtn  = buildMenuButton("Delete Save Slot", "btn-secondary");
-        Button exitBtn        = buildMenuButton("Exit",             "btn-red");
+        URL logoUrl = getClass().getResource("/images/sports-manager-logo.png");
+        if (logoUrl != null) {
+            ImageView logo = new ImageView(new Image(logoUrl.toExternalForm()));
+            logo.setPreserveRatio(true);
+            logo.setSmooth(true);
+            logo.setFitWidth(LOGO_FIT_WIDTH);
+            panel.getChildren().add(logo);
+        } else {
+            // Fallback if the PNG hasn't been dropped in yet — keeps the app
+            // launchable until the asset is added to src/main/resources/images/.
+            Label title = new Label("SPORTS MANAGER");
+            title.setFont(Font.font("Arial", FontWeight.BOLD, 36));
+            title.setTextFill(Color.WHITE);
+
+            Label subtitle = new Label("Pro Edition");
+            subtitle.setFont(Font.font("Arial", 14));
+            subtitle.setTextFill(Color.web("#22c55e"));
+
+            VBox fallback = new VBox(6, title, subtitle);
+            fallback.setAlignment(Pos.CENTER);
+            panel.getChildren().add(fallback);
+        }
+        return panel;
+    }
+
+    // ─────────────── RIGHT: buttons + version ───────────────
+    private VBox buildRightPanel() {
+        VBox panel = new VBox();
+        panel.setAlignment(Pos.CENTER);
+        panel.setMaxWidth(Double.MAX_VALUE);
+        panel.setPadding(new Insets(40));
+
+        // Inner column caps button width so the buttons stay readable
+        // instead of stretching across the full half on wide windows.
+        VBox menuColumn = new VBox(12);
+        menuColumn.setAlignment(Pos.CENTER);
+        menuColumn.setMaxWidth(320);
+
+        Button newGameBtn    = buildMenuButton("New Game",         "btn-primary");
+        Button loadGameBtn   = buildMenuButton("Load Saved Game",  "btn-secondary");
+        Button deleteSaveBtn = buildMenuButton("Delete Save Slot", "btn-secondary");
+        Button exitBtn       = buildMenuButton("Exit",             "btn-red");
 
         newGameBtn.setOnAction(e ->
                 SceneManager.getInstance().switchTo("new-game", facade));
+
         loadGameBtn.setOnAction(e -> {
             List<String> slots = facade.getSaveSlotInfo();
             List<String> existing = slots.stream()
@@ -77,22 +129,21 @@ public class MainMenuController {
                 }
             });
         });
-        deleteSaveBtn.setOnAction(e -> SaveSlotDialogs.promptDeleteSave(facade));
-        exitBtn.setOnAction(e ->
-                javafx.application.Platform.exit());
 
-        // Version label at bottom
+        deleteSaveBtn.setOnAction(e -> SaveSlotDialogs.promptDeleteSave(facade));
+        exitBtn.setOnAction(e -> javafx.application.Platform.exit());
+
         Label version = new Label("v1.0  —  M3 Project");
         version.setFont(Font.font("Arial", 11));
         version.setTextFill(Color.web("#374151"));
-
         VBox versionBlock = new VBox(version);
         versionBlock.setAlignment(Pos.CENTER);
         versionBlock.setPadding(new Insets(40, 0, 0, 0));
 
-        content.getChildren().addAll(titleBlock, newGameBtn, loadGameBtn, deleteSaveBtn, exitBtn, versionBlock);
-        root.getChildren().add(content);
-        return root;
+        menuColumn.getChildren().addAll(
+                newGameBtn, loadGameBtn, deleteSaveBtn, exitBtn, versionBlock);
+        panel.getChildren().add(menuColumn);
+        return panel;
     }
 
     private Button buildMenuButton(String text, String styleClass) {
