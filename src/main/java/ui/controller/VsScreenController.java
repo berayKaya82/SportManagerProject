@@ -36,9 +36,11 @@ public class VsScreenController {
         StackPane root = new StackPane();
 
         // ───────── BACKGROUND ─────────
-        ImageView bg = new ImageView(
-                new Image(getClass().getResource("/images/vs.jpg").toExternalForm())
-        );
+        java.net.URL bgUrl = getClass().getResource("/images/vs.jpg");
+        ImageView bg = new ImageView();
+        if (bgUrl != null) {
+            bg.setImage(new Image(bgUrl.toExternalForm()));
+        }
         bg.setPreserveRatio(false);
         bg.setSmooth(true);
         bg.fitWidthProperty().bind(root.widthProperty());

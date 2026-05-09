@@ -63,8 +63,8 @@ public class Main {
                     + " vs " + userMatch.getAwayTeam().getName());
 
             // d) Swap injured starters with healthy subs before kick-off
-            for (int s = 0; s < userTeam.getStartingPlayers().size(); s++) {
-                Player starter = userTeam.getStartingPlayers().get(s);
+            List<Player> startersSnapshot = new java.util.ArrayList<>(userTeam.getStartingPlayers());
+            for (Player starter : startersSnapshot) {
                 if (starter.getInjuryStatus() == InjuryStatus.INJURED) {
                     Player healthySub = findHealthySub(userTeam);
                     if (healthySub != null) {
@@ -76,8 +76,8 @@ public class Main {
             }
 
             // Swap low-energy starters with higher-energy subs
-            for (int s = 0; s < userTeam.getStartingPlayers().size(); s++) {
-                Player starter = userTeam.getStartingPlayers().get(s);
+            startersSnapshot = new java.util.ArrayList<>(userTeam.getStartingPlayers());
+            for (Player starter : startersSnapshot) {
                 if (starter.getInjuryStatus() != InjuryStatus.INJURED && starter.getEnergy() < 30) {
                     Player bestSub = findBestEnergySub(userTeam, starter.getEnergy());
                     if (bestSub != null) {

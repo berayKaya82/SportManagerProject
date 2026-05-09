@@ -81,9 +81,10 @@ public class SceneManager {
 
         if (stage.getScene() == null) {
             Scene scene = new Scene(root, 960, 660);
-            scene.getStylesheets().add(
-                    getClass().getResource("/style.css").toExternalForm()
-            );
+            java.net.URL cssUrl = getClass().getResource("/style.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
             stage.setScene(scene);
         } else {
             stage.getScene().setRoot(root);
