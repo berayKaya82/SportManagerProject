@@ -48,8 +48,10 @@ public class FootballScoringRule implements ScoringRule {
         if(isHome){
             score +=1;
         }
-        PlayStyle attackingStyle = attackingTeam.getTactic().getPlayStyle();
-        PlayStyle defendingStyle = defendingTeam.getTactic().getPlayStyle();
+        PlayStyle attackingStyle = attackingTeam.getTactic() != null
+                ? attackingTeam.getTactic().getPlayStyle() : PlayStyle.BALANCED;
+        PlayStyle defendingStyle = defendingTeam.getTactic() != null
+                ? defendingTeam.getTactic().getPlayStyle() : PlayStyle.BALANCED;
 
         score += getAttackBonusFromTactic(attackingStyle);
         score -= getDefenseEffectFromTactic(defendingStyle);

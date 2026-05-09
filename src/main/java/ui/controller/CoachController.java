@@ -200,8 +200,12 @@ public class CoachController {
         reqLabel.setTextFill(available ? Color.web("#6b7280") : Color.web("#ef4444"));
         reqLabel.setMinWidth(180);
 
-        // Stats
-        double rel = facade.getUserTeam().getCoachRelationship();
+        // Stats — for non-current coaches, preview with default relationship (50)
+        boolean isCurrentCoach = facade.getUserTeam().getCoach() != null
+                && facade.getUserTeam().getCoach().equals(coach);
+        double rel = isCurrentCoach
+                ? facade.getUserTeam().getCoachRelationship()
+                : 50.0;
         String statsText = available
                 ? String.format("+%.0f%% trn  ·  -%.0f%% eng",
                     (coach.getTrainingMultiplier(rel) - 1) * 100,
