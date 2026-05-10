@@ -31,6 +31,7 @@ bin/
 .DS_Store
 ### Maven ###
 target/
+dependency-reduced-pom.xml
 
 ### Sound source files (WAV too large for git) ###
 src/main/resources/sounds/*.wav
